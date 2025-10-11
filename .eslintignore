@@ -1,0 +1,2 @@
+# Ignore type declaration files
+src/types/*.d.ts
