@@ -33,18 +33,19 @@
 //   );
 // }
 
-import { ThemeProvider } from "@/components/theme-provider";
-import "./globals.css";
+import { Navbar } from "@/components/shared/navbar";
+import { Footer } from "@/components/shared/footer";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en" suppressHydrationWarning>
-      <body>
-        <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
-          {children}
-        </ThemeProvider>
+      <body className="min-h-screen bg-background font-sans antialiased">
+        <Navbar />
+        <div className="pt-[80px]">{children}</div>
+        <Footer />
       </body>
     </html>
   );
 }
+
 
