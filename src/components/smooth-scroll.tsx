@@ -4,7 +4,7 @@ import Lenis from "@studio-freight/lenis";
 
 export default function SmoothScroll() {
   useEffect(() => {
-    const lenis = new Lenis({ smoothWheel: true });
+    const lenis = new Lenis({ smooth: true });
     function raf(time: number) {
       lenis.raf(time);
       requestAnimationFrame(raf);
