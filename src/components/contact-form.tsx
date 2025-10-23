@@ -1,36 +1,14 @@
-"use client";
-
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-
-export function ContactForm() {
-  return (
-    <motion.form
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6 }}
-      className="space-y-4"
+export const ContactForm = () => (
+  <section id="contact" className="max-w-4xl mx-auto px-6 text-center py-10 animate-fadeInUp">
+    {/* <h2 className="text-3xl font-bold mb-4">Let&apos;s Connect</h2>
+    <p className="text-gray-600 dark:text-gray-300 mb-6">
+      Want to collaborate or just say hello? Reach out via email below.
+    </p> */}
+    <a
+      href="mailto:ani.josh01@gmail.com"
+      className="inline-block bg-blue-500 text-white px-6 py-3 rounded-full font-medium hover:bg-blue-600 transition"
     >
-      <div>
-        <label className="block text-sm font-medium mb-1">Name</label>
-        <Input type="text" placeholder="Your name" required />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Email</label>
-        <Input type="email" placeholder="you@example.com" required />
-      </div>
-
-      <div>
-        <label className="block text-sm font-medium mb-1">Message</label>
-        <Textarea rows={4} placeholder="Your message..." required />
-      </div>
-
-      <Button type="submit" className="w-full rounded-full">
-        Send Message
-      </Button>
-    </motion.form>
-  );
-}
+      Say Hi 👋
+    </a>
+  </section>
+);

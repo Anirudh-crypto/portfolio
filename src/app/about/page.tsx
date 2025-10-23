@@ -13,9 +13,9 @@ export default function AboutPage() {
       >
         <h1 className="text-4xl font-bold">About Me</h1>
         <p className="text-muted-foreground leading-relaxed">
-          I’m a creative developer focused on crafting unique digital experiences
-          that blend design, motion, and technology. My passion lies in creating
-          immersive UI with modern frontend tools like React, Next.js, and Framer Motion.
+          I’m a Software Developer with professional experience of 1.5 years at Bosch Global Software Technologies.
+          I have also strong passion for machine learning and AI. I have worked on various projects involving computer vision
+          and natural language processing. I love to explore new technologies and continuously enhance my skills.
         </p>
       </motion.div>
     </main>
