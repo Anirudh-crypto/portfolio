@@ -42,10 +42,10 @@ export default function ProjectsPage() {
   }, [mouseX, mouseY]);
 
   return (
-    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-6 py-20 md:px-12 lg:px-24">
-      {/* Floating background glow */}
+    <main className="relative min-h-screen flex flex-col items-center justify-center overflow-hidden px-4 sm:px-8 md:px-16 lg:px-24 xl:px-32 py-24">
+      {/* Cinematic floating background glow */}
       <motion.div
-        className="absolute top-1/3 left-1/2 w-[40rem] h-[40rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 blur-3xl opacity-20 -z-10"
+        className="absolute top-1/3 left-1/2 w-[45rem] h-[45rem] -translate-x-1/2 rounded-full bg-gradient-to-r from-blue-500 to-purple-500 blur-3xl opacity-20 -z-10"
         style={{ x: blobX, y: blobY }}
         animate={{ scale: [1, 1.05, 1] }}
         transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
@@ -61,8 +61,8 @@ export default function ProjectsPage() {
         My Projects
       </motion.h1>
 
-      {/* Projects Grid */}
-      <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-3 max-w-7xl mx-auto">
+      {/* Cinematic Grid Container */}
+      <div className="w-full max-w-[1600px] grid gap-10 sm:grid-cols-2 lg:grid-cols-3 justify-center">
         {projects.map((project, index) => (
           <motion.div
             key={index}
@@ -79,7 +79,7 @@ export default function ProjectsPage() {
         ))}
       </div>
 
-      {/* Parallax background layer */}
+      {/* Full-bleed Parallax Background */}
       <ParallaxDiv
         offset={150}
         className="absolute top-0 left-0 w-[120vw] h-[120vh] -translate-x-[10vw] -translate-y-[10vh] -z-20 bg-[radial-gradient(circle_at_top,rgba(59,130,246,0.1)_0%,transparent_70%)]"
