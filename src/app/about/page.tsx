@@ -122,7 +122,7 @@ export default function AboutPage() {
             className="mt-10 bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 shadow-md hover:shadow-lg transition-all"
           >
             <Download className="mr-2 h-4 w-4" />
-            Download Resume
+            Resume
           </Button>
         </motion.div>
       </section>
@@ -192,7 +192,15 @@ export default function AboutPage() {
               whileInView={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.6, delay: idx * 0.2 }}
               viewport={{ once: true }}
-              className="rounded-2xl p-8 bg-gradient-to-b from-background/60 to-transparent backdrop-blur-md border border-border/10 hover:shadow-[0_0_25px_rgba(147,51,234,0.25)] transition-all"
+              className="
+    relative rounded-2xl p-8 
+    bg-gradient-to-b 
+    from-background/40 to-background/10 
+    dark:from-white/5 dark:to-white/0 
+    backdrop-blur-md 
+    hover:shadow-[0_0_25px_rgba(147,51,234,0.25)] 
+    transition-all
+  "
             >
               <h3 className="text-xl font-semibold mb-6 text-transparent bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text">
                 {category}
