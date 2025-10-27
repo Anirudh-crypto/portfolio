@@ -7,11 +7,12 @@ import { ProjectModal } from "./project-modal";
 interface ProjectCardProps {
   title: string;
   description: string;
-  details?: string;
+  details?: string[];
+  tech?: string[];
   link?: string;
 }
 
-export const ProjectCard = ({ title, description, details, link }: ProjectCardProps) => {
+export const ProjectCard = ({ title, description, details, tech, link }: ProjectCardProps) => {
   const [open, setOpen] = useState(false);
   const [showButton, setShowButton] = useState(false);
 
@@ -77,6 +78,7 @@ export const ProjectCard = ({ title, description, details, link }: ProjectCardPr
         title={title}
         description={description}
         details={details}
+        tech={tech}
         link={link}
       />
     </>

@@ -8,11 +8,20 @@ interface ProjectModalProps {
   onClose: () => void;
   title: string;
   description: string;
-  details?: string;
+  details?: string[];
+  tech?: string[];
   link?: string;
 }
 
-export const ProjectModal = ({ isOpen, onClose, title, description, details, link }: ProjectModalProps) => {
+export const ProjectModal = ({
+  isOpen,
+  onClose,
+  title,
+  description,
+  details,
+  tech,
+  link,
+}: ProjectModalProps) => {
   return (
     <AnimatePresence>
       {isOpen && (
@@ -27,8 +36,9 @@ export const ProjectModal = ({ isOpen, onClose, title, description, details, lin
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.9, opacity: 0 }}
             transition={{ type: "spring", stiffness: 120, damping: 15 }}
-            className="relative w-full max-w-2xl rounded-2xl p-8 border border-white/20 shadow-2xl bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl"
+            className="relative w-full max-w-2xl rounded-2xl p-8 border border-white/20 shadow-2xl bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl text-left"
           >
+            {/* Close Button */}
             <button
               onClick={onClose}
               className="absolute top-4 right-4 text-gray-300 hover:text-white transition"
@@ -36,13 +46,43 @@ export const ProjectModal = ({ isOpen, onClose, title, description, details, lin
               <X className="w-5 h-5" />
             </button>
 
+            {/* Title */}
             <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
               {title}
             </h2>
 
+            {/* Description */}
             <p className="text-gray-300 mb-4">{description}</p>
-            {details && <p className="text-gray-400 leading-relaxed mb-6">{details}</p>}
 
+            {/* Details List */}
+            {details && details.length > 0 && (
+              <ul className="list-disc list-inside text-gray-300 space-y-2 mb-6">
+                {details.map((item, idx) => (
+                  <li key={idx} className="leading-relaxed">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            )}
+
+            {/* Technologies Section */}
+            {tech && tech.length > 0 && (
+              <div className="mb-6">
+                <h3 className="text-lg font-semibold text-white mb-2">Technologies Used</h3>
+                <div className="flex flex-wrap gap-2">
+                  {tech.map((t, idx) => (
+                    <span
+                      key={idx}
+                      className="px-3 py-1 text-sm rounded-full bg-white/10 border border-white/20 text-gray-200 hover:bg-white/20 transition"
+                    >
+                      {t}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Link */}
             {link && (
               <a
                 href={link}
