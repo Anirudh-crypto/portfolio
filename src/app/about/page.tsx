@@ -30,7 +30,7 @@ export default function AboutPage() {
 
   const handleDownload = () => {
     const link = document.createElement("a");
-    link.href = "/resume.pdf";
+    link.href = "/Resume.pdf";
     link.download = "Anirudh_Prahlad_Joshi_Resume.pdf";
     link.click();
   };
