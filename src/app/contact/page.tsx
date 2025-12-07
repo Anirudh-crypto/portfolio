@@ -14,7 +14,7 @@ export default function ContactPage() {
     {
       name: "GitHub",
       icon: <Github className="w-8 h-8" />,
-      link: "https://github.com/your-github",
+      link: "https://github.com/Anirudh-crypto",
       color: "from-gray-700 to-gray-900",
     },
     {
