@@ -5,6 +5,9 @@ import { AboutSection } from "@/components/about-section";
 import { ProjectCard } from "@/components/project-card";
 import { motion } from "framer-motion";
 import { ParallaxDiv } from "@/components/parallaxDiv";
+import { SpeedInsights } from "@vercel/speed-insights/next"
+import { SP } from "next/dist/shared/lib/utils";
+
 
 export default function HomePage() {
   const projects = [
@@ -78,6 +81,7 @@ export default function HomePage() {
           className="absolute inset-0 -z-10 bg-[radial-gradient(circle_at_top,rgba(168,85,247,0.1)_0%,transparent_70%)]"
         />
       </section>
+         <SpeedInsights/>
     </main>
   );
 }
