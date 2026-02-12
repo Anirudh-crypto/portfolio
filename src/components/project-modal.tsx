@@ -1,6 +1,6 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { X } from "lucide-react";
 
 interface ProjectModalProps {
@@ -26,80 +26,62 @@ export const ProjectModal = ({
     <AnimatePresence>
       {isOpen && (
         <motion.div
-          className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-center justify-center bg-black/45 p-5 backdrop-blur-sm"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
         >
           <motion.div
-            initial={{ scale: 0.9, opacity: 0 }}
-            animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.9, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 120, damping: 15 }}
-            className="relative w-full max-w-2xl rounded-2xl p-8 border border-white/20 shadow-2xl bg-gradient-to-br from-white/10 via-white/5 to-transparent backdrop-blur-xl text-left"
+            initial={{ opacity: 0, y: 14 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: 14 }}
+            transition={{ duration: 0.22 }}
+            className="relative w-full max-w-2xl rounded-2xl border border-border bg-card p-6 shadow-2xl"
           >
-            {/* Close Button */}
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 text-gray-300 hover:text-white transition"
+              className="absolute right-4 top-4 rounded-md p-1 text-muted-foreground transition hover:bg-muted"
+              aria-label="Close modal"
             >
-              <X className="w-5 h-5" />
+              <X className="h-5 w-5" />
             </button>
 
-            {/* Title */}
-            <h2 className="text-3xl font-bold mb-4 bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
-              {title}
-            </h2>
+            <h2 className="pr-8 text-3xl font-semibold">{title}</h2>
+            <p className="mt-3 text-muted-foreground">{description}</p>
 
-            {/* Description */}
-            <p className="text-gray-300 mb-4">{description}</p>
-
-            {/* Details List */}
             {details && details.length > 0 && (
-              <ul className="list-disc list-inside text-gray-300 space-y-2 mb-6">
-                {details.map((item, idx) => (
-                  <li key={idx} className="leading-relaxed">
-                    {item}
-                  </li>
+              <ul className="mt-5 list-disc space-y-2 pl-5 text-sm text-muted-foreground">
+                {details.map((item) => (
+                  <li key={item}>{item}</li>
                 ))}
               </ul>
             )}
 
-            {/* Technologies Section */}
             {tech && tech.length > 0 && (
-              <div className="mb-6">
-                <h3 className="text-lg font-semibold text-white mb-2">Technologies Used</h3>
+              <div className="mt-6">
+                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">
+                  Technologies
+                </h3>
                 <div className="flex flex-wrap gap-2">
-                  {tech.map((t, idx) => (
-                    <span
-                      key={idx}
-                      className="px-3 py-1 text-sm rounded-full bg-white/10 border border-white/20 text-gray-200 hover:bg-white/20 transition"
-                    >
-                      {t}
+                  {tech.map((item) => (
+                    <span key={item} className="rounded-full border border-border px-3 py-1 text-xs">
+                      {item}
                     </span>
                   ))}
                 </div>
               </div>
             )}
 
-            {/* Link */}
             {link && (
               <a
                 href={link}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="inline-block px-5 py-2 rounded-full bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90 transition"
+                className="mt-6 inline-flex rounded-full bg-[hsl(var(--accent))] px-5 py-2 text-sm text-[hsl(var(--accent-foreground))] transition-opacity hover:opacity-90"
               >
-                Visit Project →
+                Visit Project
               </a>
             )}
-
-            {/* Soft gradient glow */}
-            <motion.div
-              className="absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.2)_0%,transparent_70%)] rounded-2xl"
-              animate={{ opacity: [0.8, 0.5, 0.8] }}
-              transition={{ duration: 5, repeat: Infinity }}
-            />
           </motion.div>
         </motion.div>
       )}

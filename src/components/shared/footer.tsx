@@ -1,4 +1,5 @@
 "use client";
+
 import { useEffect, useState } from "react";
 
 export const Footer = () => {
@@ -9,8 +10,11 @@ export const Footer = () => {
   }, []);
 
   return (
-    <footer className="py-10 text-center text-gray-500 dark:text-gray-400 text-sm">
-      © {year ?? "—"} Anirudh — Crafted with ❤️ using Next.js & Tailwind
+    <footer className="soft-divider px-6 py-8">
+      <div className="mx-auto flex w-full max-w-7xl flex-col items-center justify-between gap-2 text-sm text-muted-foreground sm:flex-row">
+        <p>© {year ?? "-"} Anirudh Prahlad Joshi</p>
+        <p>Built with Next.js, Tailwind CSS, and Framer Motion</p>
+      </div>
     </footer>
   );
 };

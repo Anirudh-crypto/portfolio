@@ -2,52 +2,33 @@
 
 import { motion } from "framer-motion";
 import Image from "next/image";
-import { ParallaxDiv } from "./parallaxDiv";
 
 export function AboutSection() {
   return (
-    <section className="relative py-20 px-6 flex flex-col items-center justify-center text-center">
-      <motion.h2
-        className="text-4xl md:text-6xl font-bold mb-8 bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent"
-        initial={{ opacity: 0, y: 30 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        transition={{ duration: 1 }}
+    <section className="mt-10 grid gap-8 rounded-[2rem] border border-border/70 bg-card/70 p-6 sm:p-10 lg:grid-cols-[220px_1fr] lg:items-center">
+      <motion.div
+        initial={{ opacity: 0, scale: 0.95 }}
+        whileInView={{ opacity: 1, scale: 1 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.5 }}
+        className="relative mx-auto h-44 w-44 overflow-hidden rounded-full border border-border shadow-sm"
       >
-        About Me
-      </motion.h2>
+        <Image src="/images/pic.jpg" alt="Anirudh portrait" fill className="object-cover" />
+      </motion.div>
 
-      <div className="flex flex-col md:flex-col items-center gap-10 max-w-15xl">
-        <motion.div
-          className="relative w-48 h-48 rounded-full overflow-hidden border-4 border-blue-500 shadow-lg"
-          initial={{ opacity: 0, scale: 0.9 }}
-          whileInView={{ opacity: 1, scale: 1 }}
-          transition={{ duration: 1 }}
-        >
-          <Image
-            src="/images/pic.jpg"
-            alt="Anirudh"
-            fill
-            className="object-cover"
-          />
-        </motion.div>
-
-        <motion.p
-          className="text-lg text-muted-foreground leading-relaxed md:text-left"
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 1 }}
-        >
-          I’m a Software Developer with professional experience of 1.5 years at Bosch Global Software Technologies.
-          I have also strong passion for machine learning and AI. I have worked on various projects involving computer vision
-          and natural language processing. I love to explore new technologies and continuously enhance my skills.
-        </motion.p>
-      </div>
-
-      {/* Background Parallax Gradient */}
-      <ParallaxDiv
-        offset={80}
-        className="absolute inset-0 -z-20 bg-[radial-gradient(ellipse_at_bottom,rgba(59,130,246,0.15)_0%,transparent_70%)]"
-      />
+      <motion.div
+        initial={{ opacity: 0, y: 18 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true, margin: "-80px" }}
+        transition={{ duration: 0.6 }}
+      >
+        <h2 className="mb-3 text-3xl font-semibold sm:text-4xl">About Me</h2>
+        <p className="max-w-3xl text-muted-foreground">
+          I have professional experience at Bosch Global Software Technologies and a strong focus on
+          machine learning. My work spans software engineering, computer vision, and natural language
+          processing, with an emphasis on robust implementation and practical outcomes.
+        </p>
+      </motion.div>
     </section>
   );
 }
