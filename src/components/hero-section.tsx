@@ -1,84 +1,72 @@
 "use client";
 
-import Tilt from "react-parallax-tilt";
 import { Button } from "@/components/ui/button";
-import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ParallaxDiv } from "./parallaxDiv";
+import { ArrowRight, Sparkles } from "lucide-react";
+import { useRouter } from "next/navigation";
 
 export function HeroSection() {
   const router = useRouter();
 
   return (
-    <section className="relative flex items-center justify-center min-h-screen w-full text-center overflow-hidden">
-      {/* Fullscreen Gradient Glow */}
-      <div className="absolute inset-0 -z-20 bg-gradient-to-b from-indigo-500/10 via-transparent to-transparent" />
-
-      {/* Floating Blob */}
+    <section className="grain-overlay relative overflow-hidden rounded-[2rem] border border-border/70 bg-card/50 px-6 pb-16 pt-14 sm:px-10 sm:pt-20">
       <motion.div
-        className="absolute top-40 left-1/2 w-[40rem] h-[40rem] -translate-x-1/2 bg-gradient-to-r from-purple-500 to-blue-500 rounded-full blur-3xl opacity-20 -z-10"
-        animate={{ y: [0, 30, 0], x: [0, -20, 0] }}
-        transition={{ duration: 8, repeat: Infinity, ease: "easeInOut" }}
+        className="absolute -right-16 -top-20 h-64 w-64 rounded-full bg-[hsl(var(--accent)/0.24)] blur-3xl"
+        animate={{ y: [0, 12, 0], x: [0, -8, 0] }}
+        transition={{ duration: 9, repeat: Infinity, ease: "easeInOut" }}
       />
 
-      {/* Content Container */}
-      <div className="relative z-10 max-w-5xl mx-auto px-6 sm:px-8 md:px-10 lg:px-16">
-        {/* Title */}
-        <Tilt tiltMaxAngleX={10} tiltMaxAngleY={10} transitionSpeed={1000} className="mb-10">
-          <motion.h1
-            className="text-5xl md:text-7xl font-extrabold bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 bg-clip-text text-transparent drop-shadow-lg"
-            initial={{ opacity: 0, y: 40 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1 }}
-          >
-            Hi, I’m Anirudh
-          </motion.h1>
-        </Tilt>
-
-        {/* Subtitle */}
+      <div className="relative z-10 mx-auto max-w-4xl text-center">
         <motion.p
-          className="text-lg md:text-xl text-muted-foreground mb-10 leading-relaxed"
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.3, duration: 1 }}
+          transition={{ duration: 0.5 }}
+          className="mb-6 inline-flex items-center gap-2 rounded-full border border-border bg-background/65 px-4 py-1.5 text-xs uppercase tracking-[0.2em] text-muted-foreground"
         >
-          A passionate Engineer developing software for fun and crafting immersive digital experiences through motion and design.
+          <Sparkles className="h-3.5 w-3.5" />
+          Software Engineer and ML Enthusiast
         </motion.p>
 
-        {/* Buttons */}
-        <motion.div
-          className="flex flex-wrap justify-center gap-6"
+        <motion.h1
+          className="section-title"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.12, duration: 0.65 }}
+        >
+          Building thoughtful software with a focus on performance, clarity, and craft.
+        </motion.h1>
+
+        <motion.p
+          className="mx-auto mt-6 max-w-2xl text-base text-muted-foreground sm:text-lg"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.6, duration: 1 }}
+          transition={{ delay: 0.24, duration: 0.65 }}
+        >
+          I am Anirudh, a developer working across modern web apps and machine learning systems.
+          I care about reliable architecture and elegant user experience.
+        </motion.p>
+
+        <motion.div
+          className="mt-10 flex flex-wrap items-center justify-center gap-3"
+          initial={{ opacity: 0, y: 16 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.36, duration: 0.65 }}
         >
           <Button
             onClick={() => router.push("/projects")}
-            className="bg-gradient-to-r from-blue-600 to-purple-600 text-white hover:opacity-90"
+            className="h-10 rounded-full bg-[hsl(var(--accent))] px-6 text-[hsl(var(--accent-foreground))] hover:opacity-90"
           >
-            View Projects
+            View Projects <ArrowRight className="h-4 w-4" />
           </Button>
-          <Button variant="outline" onClick={() => router.push("/contact")}>
-            Contact Me
+          <Button
+            variant="outline"
+            onClick={() => router.push("/contact")}
+            className="h-10 rounded-full border-border bg-transparent px-6"
+          >
+            Contact
           </Button>
         </motion.div>
       </div>
-
-      {/* Scroll Indicator */}
-      <motion.div
-        className="absolute bottom-10 left-1/2 transform -translate-x-1/2 flex flex-col items-center text-muted-foreground"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <div className="w-1 h-8 rounded-full bg-gradient-to-b from-blue-500 to-purple-500 animate-pulse" />
-        <span className="text-sm mt-3 tracking-widest opacity-70">Scroll</span>
-      </motion.div>
-
-      {/* Fullscreen Parallax Background */}
-      <ParallaxDiv
-        offset={150}
-        className="absolute inset-0 w-full h-full -z-30 bg-[radial-gradient(ellipse_at_center,rgba(99,102,241,0.15)_0%,transparent_70%)]"
-      />
     </section>
   );
 }
