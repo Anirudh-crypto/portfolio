@@ -3,11 +3,13 @@
 import { AboutSection } from "@/components/about-section";
 import { HeroSection } from "@/components/hero-section";
 import { ProjectCard } from "@/components/project-card";
-import { portfolioProjects } from "@/lib/projects";
+import { useFirestoreProjects } from "@/hooks/use-firestore-projects";
+import { mergeProjects } from "@/lib/projects";
 import { motion } from "framer-motion";
 
 export default function HomePage() {
-  const featuredProjects = portfolioProjects.slice(0, 3);
+  const { projects: firestoreProjects } = useFirestoreProjects();
+  const featuredProjects = mergeProjects(firestoreProjects).slice(0, 3);
 
   return (
     <main className="space-y-12 pb-10">
@@ -28,7 +30,7 @@ export default function HomePage() {
         <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
           {featuredProjects.map((project) => (
             <ProjectCard
-              key={project.title}
+              key={project.id}
               title={project.title}
               description={project.description}
               details={project.details}

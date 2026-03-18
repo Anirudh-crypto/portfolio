@@ -1,4 +1,5 @@
-export type PortfolioProject = {
+export type Project = {
+  id: string;
   title: string;
   description: string;
   details: string[];
@@ -6,8 +7,9 @@ export type PortfolioProject = {
   link?: string;
 };
 
-export const portfolioProjects: PortfolioProject[] = [
+export const portfolioProjects: Project[] = [
   {
+    id: "federated-sentiment-analysis",
     title: "Federated Sentiment Analysis",
     description:
       "Streaming sentiment intelligence across social platforms with distributed processing pipelines.",
@@ -19,6 +21,7 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Python", "Apache Kafka", "Apache Flink", "Docker", "GCP"],
   },
   {
+    id: "understanding-v-in-multi-modal-language-models",
     title: "Understanding V in Multi-Modal Language Models",
     description:
       "Researching visual reasoning quality in multi-modal language models for VQA benchmarks.",
@@ -31,6 +34,7 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Python", "PyTorch", "BERT", "BEiT", "GPT-4.1"],
   },
   {
+    id: "debiasing-the-textvqa-dataset",
     title: "Debiasing the TextVQA Dataset",
     description:
       "Improving fairness and robustness in TextVQA through dataset-level debiasing strategies.",
@@ -42,3 +46,24 @@ export const portfolioProjects: PortfolioProject[] = [
     tech: ["Python", "PyTorch", "Computer Vision", "NLP"],
   },
 ];
+
+const getProjectKey = (project: Pick<Project, "title" | "link">) =>
+  `${project.title.trim().toLowerCase()}::${project.link?.trim().toLowerCase() ?? ""}`;
+
+export const mergeProjects = (liveProjects: Project[], baseProjects: Project[] = portfolioProjects) => {
+  const mergedProjects = new Map<string, Project>();
+
+  for (const project of liveProjects) {
+    mergedProjects.set(getProjectKey(project), project);
+  }
+
+  for (const project of baseProjects) {
+    const projectKey = getProjectKey(project);
+
+    if (!mergedProjects.has(projectKey)) {
+      mergedProjects.set(projectKey, project);
+    }
+  }
+
+  return Array.from(mergedProjects.values());
+};
