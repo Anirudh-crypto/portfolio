@@ -1,10 +1,14 @@
 "use client";
 
 import { ProjectCard } from "@/components/project-card";
-import { portfolioProjects } from "@/lib/projects";
+import { useFirestoreProjects } from "@/hooks/use-firestore-projects";
+import { mergeProjects } from "@/lib/projects";
 import { motion } from "framer-motion";
 
 export default function ProjectsPage() {
+  const { projects: firestoreProjects } = useFirestoreProjects();
+  const projects = mergeProjects(firestoreProjects);
+
   return (
     <main className="space-y-8 pb-10">
       <section className="grain-overlay relative rounded-[2rem] border border-border/70 bg-card/65 px-6 py-12 sm:p-12">
@@ -27,9 +31,9 @@ export default function ProjectsPage() {
       </section>
 
       <section className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {portfolioProjects.map((project, index) => (
+        {projects.map((project, index) => (
           <motion.div
-            key={project.title}
+            key={project.id}
             initial={{ opacity: 0, y: 18 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.4, delay: index * 0.08 }}
