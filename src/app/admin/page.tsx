@@ -36,6 +36,10 @@ const parseLineSeparatedValues = (value: string) =>
     .map((item) => item.trim())
     .filter(Boolean);
 
+/** Omits blank optional fields entirely rather than writing empty strings. */
+const optional = (key: string, value: string) =>
+  value.trim() ? { [key]: value.trim() } : {};
+
 const createProjectPayload = (values: ProjectFormValues) => {
   const order = Number(values.order.trim());
 
@@ -44,9 +48,17 @@ const createProjectPayload = (values: ProjectFormValues) => {
     description: values.description.trim(),
     details: parseLineSeparatedValues(values.details),
     tech: parseCommaSeparatedValues(values.tech),
-    ...(values.link.trim() ? { link: values.link.trim() } : {}),
-    ...(values.repoUrl.trim() ? { repoUrl: values.repoUrl.trim() } : {}),
-    ...(values.imageUrl.trim() ? { imageUrl: values.imageUrl.trim() } : {}),
+    metrics: parseLineSeparatedValues(values.metrics),
+    ...optional("link", values.link),
+    ...optional("repoUrl", values.repoUrl),
+    ...optional("imageUrl", values.imageUrl),
+    ...optional("episodeTitle", values.episodeTitle),
+    ...optional("guestStarring", values.guestStarring),
+    ...optional("runtime", values.runtime),
+    ...optional("coldOpen", values.coldOpen),
+    ...optional("plot", values.plot),
+    ...optional("twist", values.twist),
+    ...optional("finale", values.finale),
     ...(values.order.trim() && Number.isFinite(order) ? { order } : {}),
   };
 };
@@ -61,6 +73,14 @@ const createProjectFormValues = (project: Project): ProjectFormValues => ({
   imageUrl: project.imageUrl ?? "",
   // MAX_SAFE_INTEGER is the "unordered" sentinel from normalizeProject.
   order: project.order === Number.MAX_SAFE_INTEGER ? "" : String(project.order),
+  episodeTitle: project.episodeTitle ?? "",
+  guestStarring: project.guestStarring ?? "",
+  runtime: project.runtime ?? "",
+  coldOpen: project.coldOpen ?? "",
+  plot: project.plot ?? "",
+  twist: project.twist ?? "",
+  finale: project.finale ?? "",
+  metrics: project.metrics.map((metric) => `${metric.label}: ${metric.value}`).join("\n"),
 });
 
 const describeError = (error: unknown, fallback: string) => {

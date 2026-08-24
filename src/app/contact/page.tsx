@@ -1,85 +1,111 @@
 import type { Metadata } from "next";
 import { Github, Linkedin, Mail } from "lucide-react";
 import { ContactForm } from "@/components/contact-form";
-import { Reveal } from "@/components/animations/reveal";
+import { Container } from "@/components/shared/container";
+import { Dots } from "@/components/shared/dots";
+import { Ticker } from "@/components/shared/ticker";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
-  title: "Contact",
+  title: "Say Hi",
   description:
     "Get in touch with Anirudh Prahlad Joshi about software, machine learning, and product-focused engineering roles.",
   alternates: { canonical: "/contact" },
 };
 
-const socials = [
+const SOCIALS = [
   {
-    name: "LinkedIn",
-    icon: Linkedin,
-    link: "https://www.linkedin.com/in/anirudhpjoshi/",
-    note: "Professional profile and updates",
+    name: "Email",
+    icon: Mail,
+    href: `mailto:${siteConfig.links.email}`,
+    handle: siteConfig.links.email,
+    tone: "bg-orange",
   },
   {
     name: "GitHub",
     icon: Github,
-    link: "https://github.com/Anirudh-crypto",
-    note: "Code repositories and experiments",
+    href: siteConfig.links.github,
+    handle: "Anirudh-crypto",
+    tone: "bg-mustard",
   },
   {
-    name: "Email",
-    icon: Mail,
-    link: "mailto:ani.josh01@gmail.com",
-    note: "Direct contact for work and collaboration",
+    name: "LinkedIn",
+    icon: Linkedin,
+    href: siteConfig.links.linkedin,
+    handle: "anirudhpjoshi",
+    tone: "bg-cream",
   },
 ];
 
 export default function ContactPage() {
   return (
-    <div className="space-y-8 pb-10">
-      <section className="rounded-[2rem] border border-border/70 bg-card/60 px-6 py-12 sm:p-12">
-        <Reveal immediate>
-          <h1 className="section-title text-center">Let&apos;s Connect</h1>
-        </Reveal>
-
-        <Reveal immediate delay={0.1}>
-          <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-            I am open to opportunities in software, machine learning, and product-focused engineering.
+    <>
+      <section className="blk-mustard halftone border-b-[3px] border-foreground">
+        <Container className="py-14 lg:py-16">
+          <div className="flex items-center gap-4">
+            <Dots size={17} />
+            <span className="font-mono text-[11px] uppercase tracking-[0.24em] sm:text-xs">
+              Say Hi
+            </span>
+          </div>
+          <h1 className="mt-6 font-display text-[clamp(2.5rem,1.6rem+4vw,5.4rem)]">
+            How you deployin&rsquo;?
+          </h1>
+          <p className="mt-6 max-w-[54ch] text-lg leading-relaxed">
+            Open to roles in software and machine learning. Leave a note on the door and I will get
+            back to you.
           </p>
-        </Reveal>
+        </Container>
+      </section>
 
-        <div className="mx-auto mt-10 grid max-w-4xl gap-4 md:grid-cols-3">
-          {socials.map((social, index) => {
-            const Icon = social.icon;
-            return (
-              <Reveal key={social.name} delay={index * 0.08} duration={0.4} offset={16}>
+      <Container className="py-14">
+        <div className="grid items-start gap-12 lg:grid-cols-[1fr_370px]">
+          <div className="hard bg-card p-7 sm:p-9">
+            <div className="mb-7 flex items-center gap-4">
+              <Dots size={13} />
+              <span className="font-mono text-[13px] font-bold uppercase tracking-[0.22em]">
+                Leave a message after the beep
+              </span>
+            </div>
+            <ContactForm />
+          </div>
+
+          <div className="flex flex-col gap-5">
+            {SOCIALS.map((social) => {
+              const Icon = social.icon;
+              return (
                 <a
-                  href={social.link}
-                  target="_blank"
+                  key={social.name}
+                  href={social.href}
+                  target={social.href.startsWith("mailto:") ? undefined : "_blank"}
                   rel="noopener noreferrer"
-                  className="surface-card group block h-full rounded-2xl p-5 transition-colors hover:bg-muted/25"
+                  className={`hard-navy flex items-center gap-5 p-5 text-navy transition-transform hover:translate-x-[2px] hover:translate-y-[2px] ${social.tone}`}
                 >
-                  <Icon className="h-6 w-6 text-muted-foreground transition-colors group-hover:text-foreground" />
-                  <h2 className="mt-5 text-xl font-semibold">{social.name}</h2>
-                  <p className="mt-2 text-sm text-muted-foreground">{social.note}</p>
+                  <Icon className="h-6 w-6 shrink-0" />
+                  <span>
+                    <span className="block font-display text-lg leading-none">{social.name}</span>
+                    <span className="mt-1.5 block font-mono text-xs font-bold">
+                      {social.handle}
+                    </span>
+                  </span>
                 </a>
-              </Reveal>
-            );
-          })}
-        </div>
-      </section>
+              );
+            })}
 
-      <section className="surface-card mx-auto max-w-2xl p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold">Send a message</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Prefer email? Reach me at{" "}
-          <a className="underline underline-offset-4" href="mailto:ani.josh01@gmail.com">
-            ani.josh01@gmail.com
-          </a>
-          .
-        </p>
-
-        <div className="mt-6">
-          <ContactForm />
+            <div className="blk-teal border-[3px] border-foreground p-5">
+              <p className="font-mono text-[13px] leading-relaxed">
+                {"// based in Hamburg"}
+                <br />
+                {"// currently at TUHH"}
+                <br />
+                {"// usually awake"}
+              </p>
+            </div>
+          </div>
         </div>
-      </section>
-    </div>
+      </Container>
+
+      <Ticker text="Shot on location in Hamburg · No laugh track required" />
+    </>
   );
 }

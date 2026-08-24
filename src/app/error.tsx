@@ -1,12 +1,14 @@
 "use client";
 
 import { useEffect } from "react";
+import { Container } from "@/components/shared/container";
+import { Dots } from "@/components/shared/dots";
 import { Button } from "@/components/ui/button";
 
 /**
- * Route-level error boundary. This became load-bearing once project data is
+ * Route-level error boundary. This is load-bearing because project data is
  * fetched during rendering — a Firestore outage should surface a recoverable
- * page, not a blank screen.
+ * page rather than a blank screen.
  */
 export default function Error({
   error,
@@ -20,21 +22,36 @@ export default function Error({
   }, [error]);
 
   return (
-    <div className="flex min-h-[60vh] items-center justify-center pb-10">
-      <div className="surface-card w-full max-w-lg p-8 text-center sm:p-10">
-        <h1 className="text-3xl font-semibold sm:text-4xl">Something went wrong</h1>
-        <p className="mt-4 text-muted-foreground">
-          This page failed to load. Trying again usually fixes it.
+    <section className="blk-ink halftone border-b-[3px] border-foreground">
+      <Container className="flex min-h-[60vh] flex-col justify-center py-16">
+        <div className="flex items-center gap-4">
+          <Dots size={17} />
+          <span className="font-mono text-[11px] uppercase tracking-[0.24em] opacity-85 sm:text-xs">
+            Technical difficulties
+          </span>
+        </div>
+
+        <h1 className="mt-6 max-w-[18ch] font-display text-[clamp(2.2rem,1.5rem+3vw,4.2rem)]">
+          We&rsquo;ll be right back after this break
+        </h1>
+
+        <p className="mt-6 max-w-[52ch] text-lg leading-relaxed opacity-90">
+          Something went wrong loading this page. Trying again usually sorts it out.
         </p>
 
         {error.digest && (
-          <p className="mt-3 text-xs text-muted-foreground">Reference: {error.digest}</p>
+          <p className="mt-4 font-mono text-xs opacity-60">
+            {"// reference: "}
+            {error.digest}
+          </p>
         )}
 
-        <Button onClick={reset} className="mt-8 rounded-full px-6">
-          Try again
-        </Button>
-      </div>
-    </div>
+        <div className="mt-9">
+          <Button onClick={reset} variant="chunky" size="xl">
+            Roll it again
+          </Button>
+        </div>
+      </Container>
+    </section>
   );
 }

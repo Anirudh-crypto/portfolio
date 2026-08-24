@@ -9,8 +9,9 @@ module.exports = {
   theme: {
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", "sans-serif"],
-        display: ["var(--font-display)", "serif"],
+        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        display: ["var(--font-display)", "Rockwell", "Georgia", "serif"],
+        mono: ["var(--font-mono)", "ui-monospace", "Menlo", "monospace"],
       },
       colors: {
         background: "hsl(var(--background))",
@@ -46,15 +47,12 @@ module.exports = {
           DEFAULT: "hsl(var(--destructive))",
           foreground: "hsl(var(--destructive-foreground))",
         },
-      },
-      keyframes: {
-        fadeInUp: {
-          "0%": { opacity: "0", transform: "translateY(20px)" },
-          "100%": { opacity: "1", transform: "translateY(0)" },
-        },
-      },
-      animation: {
-        fadeInUp: "fadeInUp 0.8s ease-out",
+        /* Fixed block palette — does not swap with the theme. */
+        orange: "hsl(var(--orange))",
+        mustard: "hsl(var(--mustard))",
+        teal: "hsl(var(--teal))",
+        navy: "hsl(var(--navy))",
+        cream: "hsl(var(--cream))",
       },
     },
   },
