@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { FIREBASE_DATABASE_ID, FIREBASE_PROJECT_ID } from "@/firebase/constants";
+import { ADMIN_EMAIL, FIREBASE_DATABASE_ID, FIREBASE_PROJECT_ID } from "@/firebase/constants";
 import { contactSchema } from "@/lib/contact-schema";
 
 export const runtime = "nodejs";
@@ -118,5 +118,68 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Could not send your message." }, { status: 502 });
   }
 
+  // The message is already archived, so a failed notification must not fail
+  // the request — it would tell the sender their message was lost when it
+  // was not, and invite a duplicate submission.
+  await notifyByEmail({ name, email, message });
+
   return NextResponse.json({ ok: true });
 }
+
+/**
+ * Forwards the submission to the owner's inbox via Resend's REST API.
+ *
+ * No SDK: this matches how `lib/projects-server.ts` already talks to Firestore
+ * over REST, and adds no dependency. Sending from Resend's shared
+ * `onboarding@resend.dev` address works on the free tier without a verified
+ * domain, because the recipient is the account's own verified address.
+ *
+ * `reply_to` is the enquirer, so replying from a mail client goes straight
+ * back to them rather than to Resend.
+ */
+const notifyByEmail = async ({
+  name,
+  email,
+  message,
+}: {
+  name: string;
+  email: string;
+  message: string;
+}) => {
+  const apiKey = process.env.RESEND_API_KEY;
+
+  if (!apiKey) {
+    console.warn("RESEND_API_KEY is not set — message archived without an email notification.");
+    return;
+  }
+
+  try {
+    const response = await fetch("https://api.resend.com/emails", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${apiKey}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        from: "Portfolio <onboarding@resend.dev>",
+        to: [ADMIN_EMAIL],
+        reply_to: email,
+        subject: `Portfolio enquiry from ${name}`,
+        text: [
+          `From: ${name} <${email}>`,
+          "",
+          message,
+          "",
+          "—",
+          "Sent from the portfolio contact form. Reply directly to answer.",
+        ].join("\n"),
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`Resend notification failed: ${response.status}`, await response.text());
+    }
+  } catch (error) {
+    console.error("Resend notification threw.", error);
+  }
+};

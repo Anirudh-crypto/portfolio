@@ -8,7 +8,7 @@ import { Dots } from "@/components/shared/dots";
 import { Button } from "@/components/ui/button";
 import { getProjectBySlug, getProjects } from "@/lib/projects-server";
 import { episodeCode, headlineOf, type Project } from "@/lib/projects";
-import { siteUrl } from "@/lib/site";
+import { siteConfig, siteUrl } from "@/lib/site";
 
 type ProjectPageProps = {
   params: Promise<{ slug: string }>;
@@ -115,8 +115,28 @@ export default async function ProjectPage({ params }: ProjectPageProps) {
     project.finale && { label: "Series finale", title: "Where it landed", body: project.finale },
   ].filter(Boolean) as { label: string; title: string; body: string }[];
 
+  /* Per-project markup; the site-wide `Person` block lives in the root layout. */
+  const projectJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "CreativeWork",
+    name: title,
+    ...(headline !== title ? { alternateName: headline } : {}),
+    ...(description ? { description } : {}),
+    url: `${siteUrl}/projects/${project.slug}`,
+    author: { "@type": "Person", name: siteConfig.name, url: siteUrl },
+    ...(tech.length > 0 ? { keywords: tech.join(", ") } : {}),
+    ...(imageUrl ? { image: imageUrl } : {}),
+    ...(repoUrl ? { codeRepository: repoUrl } : {}),
+    ...(project.createdAtMs ? { dateCreated: new Date(project.createdAtMs).toISOString() } : {}),
+  };
+
   return (
     <>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(projectJsonLd) }}
+      />
+
       <section className="blk-teal halftone border-b-[3px] border-foreground">
         <Container className="py-10 lg:py-14">
           <Link

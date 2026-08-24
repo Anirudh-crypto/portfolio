@@ -163,14 +163,27 @@ export default function AboutPage() {
             <p className="mt-2 text-base opacity-80">Every credit, properly formatted, in PDF.</p>
           </div>
           {/*
-            A real download link rather than a click handler that builds an
-            anchor: it works without JavaScript and can be opened in a new tab.
+            /api/resume picks the German or Indian CV from the visitor's region.
+            Geolocation only sets the default — the explicit links below always
+            work, so a VPN or a recruiter abroad is never stuck with the wrong
+            document. Real links, so this needs no JavaScript.
           */}
-          <Button asChild variant="chunkyCream" size="xl">
-            <a href="/Resume.pdf" download="Anirudh_Prahlad_Joshi_Resume.pdf">
-              <Download className="h-5 w-5" /> Get the full script
-            </a>
-          </Button>
+          <div className="flex flex-col items-start gap-3 sm:items-end">
+            <Button asChild variant="chunkyCream" size="xl">
+              <a href="/api/resume">
+                <Download className="h-5 w-5" /> Get the full script
+              </a>
+            </Button>
+            <p className="font-mono text-[11px] font-bold uppercase tracking-[0.14em]">
+              <a className="underline underline-offset-4" href="/api/resume?region=in">
+                India version
+              </a>
+              <span aria-hidden> · </span>
+              <a className="underline underline-offset-4" href="/api/resume?region=de">
+                Germany version
+              </a>
+            </p>
+          </div>
         </Container>
       </section>
     </>
