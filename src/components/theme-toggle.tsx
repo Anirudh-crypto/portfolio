@@ -11,24 +11,29 @@ export function ThemeToggle() {
 
   useEffect(() => setMounted(true), []);
 
-  if (!mounted) return null;
+  // The resolved theme is unknown until hydration. Render a same-sized inert
+  // placeholder rather than nothing, so the navbar does not reflow.
+  if (!mounted) {
+    return (
+      <div
+        aria-hidden
+        className="size-9 rounded-lg border border-border"
+      />
+    );
+  }
 
-  // Use system theme if theme is set to "system"
   const currentTheme = theme === "system" ? systemTheme : theme;
+  const nextTheme = currentTheme === "light" ? "dark" : "light";
 
   return (
     <Button
       variant="ghost"
       size="icon"
-      onClick={() => setTheme(currentTheme === "light" ? "dark" : "light")}
+      onClick={() => setTheme(nextTheme)}
       className="rounded-lg border border-border text-muted-foreground hover:text-foreground"
-      aria-label="Toggle theme"
+      aria-label={`Switch to ${nextTheme} theme`}
     >
-      {currentTheme === "light" ? (
-        <Moon className="h-5 w-5" />
-      ) : (
-        <Sun className="h-5 w-5" />
-      )}
+      {currentTheme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
     </Button>
   );
 }

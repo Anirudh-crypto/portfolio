@@ -1,69 +1,105 @@
 export type Project = {
   id: string;
+  slug: string;
   title: string;
   description: string;
   details: string[];
   tech: string[];
   link?: string;
+  repoUrl?: string;
+  imageUrl?: string;
+  order: number;
+  createdAtMs: number;
 };
 
-export const portfolioProjects: Project[] = [
-  {
-    id: "federated-sentiment-analysis",
-    title: "Federated Sentiment Analysis",
-    description:
-      "Streaming sentiment intelligence across social platforms with distributed processing pipelines.",
-    details: [
-      "Built a real-time sentiment pipeline on live Reddit streams.",
-      "Integrated Apache Kafka and Apache Flink for low-latency event processing.",
-      "Containerized services with Docker and deployed the stack on Google Cloud Platform.",
-    ],
-    tech: ["Python", "Apache Kafka", "Apache Flink", "Docker", "GCP"],
-  },
-  {
-    id: "understanding-v-in-multi-modal-language-models",
-    title: "Understanding V in Multi-Modal Language Models",
-    description:
-      "Researching visual reasoning quality in multi-modal language models for VQA benchmarks.",
-    details: [
-      "Studied visual grounding behavior in multimodal language architectures.",
-      "Trained a visual-language system using BERT and BEiT backbones.",
-      "Created a custom COCO-based Q&A dataset with GPT-assisted annotations.",
-      "Evaluated model quality on Visual Question Answering tasks.",
-    ],
-    tech: ["Python", "PyTorch", "BERT", "BEiT", "GPT-4.1"],
-  },
-  {
-    id: "debiasing-the-textvqa-dataset",
-    title: "Debiasing the TextVQA Dataset",
-    description:
-      "Improving fairness and robustness in TextVQA through dataset-level debiasing strategies.",
-    details: [
-      "Designed a debiasing framework to reduce shortcut learning in TextVQA.",
-      "Integrated external datasets to improve generalization beyond narrow priors.",
-      "Used VQA distributions as a normalization baseline for bias mitigation.",
-    ],
-    tech: ["Python", "PyTorch", "Computer Vision", "NLP"],
-  },
-];
+/**
+ * A raw `projects` document, from either the Firestore web SDK (admin panel)
+ * or the REST API (server-rendered pages). Every field is `unknown` because
+ * documents are written by the admin form and can drift from this shape.
+ */
+export type RawProject = Record<string, unknown>;
 
-const getProjectKey = (project: Pick<Project, "title" | "link">) =>
-  `${project.title.trim().toLowerCase()}::${project.link?.trim().toLowerCase() ?? ""}`;
+const toTrimmedString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
 
-export const mergeProjects = (liveProjects: Project[], baseProjects: Project[] = portfolioProjects) => {
-  const mergedProjects = new Map<string, Project>();
+const toOptionalString = (value: unknown) => toTrimmedString(value) || undefined;
 
-  for (const project of liveProjects) {
-    mergedProjects.set(getProjectKey(project), project);
+const toStringArray = (value: unknown) =>
+  Array.isArray(value) ? value.map(toTrimmedString).filter((item) => item.length > 0) : [];
+
+const toNumber = (value: unknown, fallback: number) => {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
   }
 
-  for (const project of baseProjects) {
-    const projectKey = getProjectKey(project);
-
-    if (!mergedProjects.has(projectKey)) {
-      mergedProjects.set(projectKey, project);
-    }
+  if (typeof value === "string") {
+    const parsed = Number(value);
+    return Number.isFinite(parsed) ? parsed : fallback;
   }
 
-  return Array.from(mergedProjects.values());
+  return fallback;
 };
+
+/** Accepts a Firestore Timestamp, a Date, an ISO string, or epoch millis. */
+export const toMillis = (value: unknown): number => {
+  if (value instanceof Date) {
+    return value.getTime();
+  }
+
+  if (typeof value === "number") {
+    return value;
+  }
+
+  if (typeof value === "string") {
+    const parsed = Date.parse(value);
+    return Number.isNaN(parsed) ? 0 : parsed;
+  }
+
+  if (
+    typeof value === "object" &&
+    value !== null &&
+    "toMillis" in value &&
+    typeof (value as { toMillis: unknown }).toMillis === "function"
+  ) {
+    return (value as { toMillis: () => number }).toMillis();
+  }
+
+  return 0;
+};
+
+export const slugify = (value: string) =>
+  value
+    .toLowerCase()
+    .normalize("NFKD")
+    .replace(/[̀-ͯ]/g, "")
+    .replace(/[^a-z0-9]+/g, "-")
+    .replace(/^-+|-+$/g, "");
+
+/** Returns `null` for documents with no usable title, so callers can filter them out. */
+export const normalizeProject = (id: string, data: RawProject): Project | null => {
+  const title = toTrimmedString(data.title);
+
+  if (!title) {
+    return null;
+  }
+
+  return {
+    id,
+    slug: slugify(title) || id,
+    title,
+    description: toTrimmedString(data.description),
+    details: toStringArray(data.details),
+    tech: toStringArray(data.tech),
+    link: toOptionalString(data.link),
+    repoUrl: toOptionalString(data.repoUrl),
+    imageUrl: toOptionalString(data.imageUrl),
+    // Unordered projects sort after ordered ones rather than jumping to the top.
+    order: toNumber(data.order, Number.MAX_SAFE_INTEGER),
+    createdAtMs: toMillis(data.createdAt),
+  };
+};
+
+/** Explicit `order` ascending, then newest first. */
+export const sortProjects = (projects: Project[]) =>
+  [...projects].sort(
+    (left, right) => left.order - right.order || right.createdAtMs - left.createdAtMs
+  );

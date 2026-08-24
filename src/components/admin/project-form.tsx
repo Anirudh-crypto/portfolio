@@ -12,9 +12,23 @@ export type ProjectFormValues = {
   details: string;
   tech: string;
   link: string;
+  repoUrl: string;
+  imageUrl: string;
+  order: string;
 };
 
-type ProjectFormTab = "overview" | "details";
+export const emptyProjectForm: ProjectFormValues = {
+  title: "",
+  description: "",
+  details: "",
+  tech: "",
+  link: "",
+  repoUrl: "",
+  imageUrl: "",
+  order: "",
+};
+
+type ProjectFormTab = "overview" | "details" | "links";
 
 type ProjectFormProps = {
   formId: string;
@@ -29,6 +43,7 @@ type ProjectFormProps = {
 const tabs: { id: ProjectFormTab; label: string }[] = [
   { id: "overview", label: "Overview" },
   { id: "details", label: "Bullet Points" },
+  { id: "links", label: "Links & Media" },
 ];
 
 export const ProjectForm = ({
@@ -50,11 +65,7 @@ export const ProjectForm = ({
     onChange({ ...values, [field]: value });
   };
 
-  const titleId = `${formId}-project-title`;
-  const descriptionId = `${formId}-project-description`;
-  const techId = `${formId}-project-tech`;
-  const linkId = `${formId}-project-link`;
-  const detailsId = `${formId}-project-details`;
+  const fieldId = (field: string) => `${formId}-project-${field}`;
 
   return (
     <div className="space-y-5">
@@ -73,12 +84,12 @@ export const ProjectForm = ({
         ))}
       </div>
 
-      {activeTab === "overview" ? (
+      {activeTab === "overview" && (
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor={titleId}>Title</Label>
+            <Label htmlFor={fieldId("title")}>Title</Label>
             <Input
-              id={titleId}
+              id={fieldId("title")}
               placeholder="Project title"
               value={values.title}
               onChange={(event) => updateField("title", event.target.value)}
@@ -87,9 +98,9 @@ export const ProjectForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={descriptionId}>Small Description</Label>
+            <Label htmlFor={fieldId("description")}>Small Description</Label>
             <Textarea
-              id={descriptionId}
+              id={fieldId("description")}
               placeholder="A short paragraph for the project card."
               value={values.description}
               onChange={(event) => updateField("description", event.target.value)}
@@ -98,9 +109,9 @@ export const ProjectForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={techId}>Technologies</Label>
+            <Label htmlFor={fieldId("tech")}>Technologies</Label>
             <Input
-              id={techId}
+              id={fieldId("tech")}
               placeholder="React, Next.js, Firebase"
               value={values.tech}
               onChange={(event) => updateField("tech", event.target.value)}
@@ -110,27 +121,76 @@ export const ProjectForm = ({
           </div>
 
           <div className="space-y-2">
-            <Label htmlFor={linkId}>Project Link</Label>
+            <Label htmlFor={fieldId("order")}>Display Order</Label>
             <Input
-              id={linkId}
-              placeholder="https://example.com"
-              value={values.link}
-              onChange={(event) => updateField("link", event.target.value)}
+              id={fieldId("order")}
+              type="number"
+              inputMode="numeric"
+              placeholder="1"
+              value={values.order}
+              onChange={(event) => updateField("order", event.target.value)}
               className="rounded-xl"
             />
+            <p className="text-xs text-muted-foreground">
+              Lower numbers appear first. Leave blank to sort by newest.
+            </p>
           </div>
         </div>
-      ) : (
+      )}
+
+      {activeTab === "details" && (
         <div className="space-y-2">
-          <Label htmlFor={detailsId}>Description Bullet Points</Label>
+          <Label htmlFor={fieldId("details")}>Description Bullet Points</Label>
           <Textarea
-            id={detailsId}
+            id={fieldId("details")}
             placeholder={"Built the core feature\nOptimized query performance\nDeployed the app to production"}
             value={values.details}
             onChange={(event) => updateField("details", event.target.value)}
             className="min-h-40 rounded-xl"
           />
           <p className="text-xs text-muted-foreground">Add one bullet point per line.</p>
+        </div>
+      )}
+
+      {activeTab === "links" && (
+        <div className="space-y-4">
+          <div className="space-y-2">
+            <Label htmlFor={fieldId("link")}>Live Project Link</Label>
+            <Input
+              id={fieldId("link")}
+              type="url"
+              placeholder="https://example.com"
+              value={values.link}
+              onChange={(event) => updateField("link", event.target.value)}
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor={fieldId("repoUrl")}>Source Repository</Label>
+            <Input
+              id={fieldId("repoUrl")}
+              type="url"
+              placeholder="https://github.com/username/repository"
+              value={values.repoUrl}
+              onChange={(event) => updateField("repoUrl", event.target.value)}
+              className="rounded-xl"
+            />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor={fieldId("imageUrl")}>Preview Image</Label>
+            <Input
+              id={fieldId("imageUrl")}
+              placeholder="/images/project.jpg or https://..."
+              value={values.imageUrl}
+              onChange={(event) => updateField("imageUrl", event.target.value)}
+              className="rounded-xl"
+            />
+            <p className="text-xs text-muted-foreground">
+              Paths beginning with / are served from the public folder and get optimised.
+            </p>
+          </div>
         </div>
       )}
 

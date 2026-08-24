@@ -8,10 +8,20 @@
   --muted: 34 24% 91%;
   --muted-foreground: 218 15% 40%;
   --card: 36 35% 99%;
+  --card-foreground: 220 28% 14%;
+  --popover: 36 35% 99%;
+  --popover-foreground: 220 28% 14%;
   --border: 34 21% 82%;
+  --input: 34 21% 82%;
   --ring: 212 85% 34%;
   --accent: 205 70% 35%;
   --accent-foreground: 35 20% 96%;
+  --primary: 220 28% 14%;
+  --primary-foreground: 36 33% 97%;
+  --secondary: 34 24% 91%;
+  --secondary-foreground: 220 28% 14%;
+  --destructive: 0 72% 42%;
+  --destructive-foreground: 0 0% 98%;
 }
 
 .dark {
@@ -20,10 +30,20 @@
   --muted: 216 24% 16%;
   --muted-foreground: 40 10% 68%;
   --card: 216 30% 12%;
+  --card-foreground: 42 20% 92%;
+  --popover: 216 30% 12%;
+  --popover-foreground: 42 20% 92%;
   --border: 215 22% 24%;
+  --input: 215 22% 24%;
   --ring: 190 75% 58%;
   --accent: 190 65% 53%;
   --accent-foreground: 220 28% 12%;
+  --primary: 42 20% 92%;
+  --primary-foreground: 216 30% 9%;
+  --secondary: 216 24% 16%;
+  --secondary-foreground: 42 20% 92%;
+  --destructive: 0 66% 56%;
+  --destructive-foreground: 0 0% 98%;
 }
 
 html,
@@ -54,10 +74,6 @@ body {
 }
 
 @layer utilities {
-  .text-muted-foreground {
-    color: hsl(var(--muted-foreground));
-  }
-
   .site-bg {
     position: fixed;
     inset: 0;
@@ -102,5 +118,65 @@ body {
     font-size: clamp(2rem, 1.4rem + 2.5vw, 3.4rem);
     line-height: 1.15;
     font-weight: 700;
+  }
+}
+
+/*
+ * Radix dialog transitions.
+ *
+ * The shadcn components ship `animate-in` / `fade-out-0` utility names that
+ * come from the `tailwindcss-animate` plugin, which this project does not use.
+ * These rules drive the same states directly off Radix's `data-state`.
+ */
+@keyframes overlay-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes content-in {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -46%) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+[data-slot="dialog-overlay"][data-state="open"] {
+  animation: overlay-in 180ms ease-out;
+}
+
+[data-slot="dialog-overlay"][data-state="closed"] {
+  animation: overlay-in 150ms ease-in reverse;
+}
+
+[data-slot="dialog-content"][data-state="open"] {
+  animation: content-in 200ms ease-out;
+}
+
+[data-slot="dialog-content"][data-state="closed"] {
+  animation: content-in 150ms ease-in reverse;
+}
+
+/* Honour the OS "reduce motion" setting across the whole site. */
+@media (prefers-reduced-motion: reduce) {
+  html,
+  body {
+    scroll-behavior: auto;
+  }
+
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
   }
 }
