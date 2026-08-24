@@ -1,46 +1,108 @@
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
-import { AboutSection } from "@/components/about-section";
 import { HeroSection } from "@/components/hero-section";
-import { ProjectCard } from "@/components/project-card";
-import { Reveal } from "@/components/animations/reveal";
+import { EpisodeCard } from "@/components/episode-card";
+import { Container } from "@/components/shared/container";
+import { Ticker } from "@/components/shared/ticker";
+import { Sticker } from "@/components/shared/sticker";
+import { Button } from "@/components/ui/button";
 import { getProjects } from "@/lib/projects-server";
 
+const EXPERIENCE = [
+  {
+    period: "2025 —",
+    role: "Student Assistant",
+    org: "TUHH",
+    description:
+      "Industrial analytics and ML-driven automation. A Vue.js front end over Python and MongoDB services.",
+    tone: "bg-mustard",
+  },
+  {
+    period: "2023 – 24",
+    role: "Associate Software Engineer",
+    org: "Bosch Global Software",
+    description:
+      "Navigation search behaviour and data quality across C++ and Qt desktop platforms.",
+    tone: "bg-orange",
+  },
+  {
+    period: "2023",
+    role: "Project Trainee",
+    org: "Bosch Global Software",
+    description: "Refactored map-search logic to cut latency in infotainment software.",
+    tone: "bg-cream",
+  },
+];
+
 export default async function HomePage() {
-  const featuredProjects = (await getProjects()).slice(0, 3);
+  const allProjects = await getProjects();
+  const featured = allProjects.slice(0, 3);
 
   return (
-    <div className="space-y-12 pb-10">
+    <>
       <HeroSection />
-      <AboutSection />
 
-      <section className="rounded-[2rem] border border-border/70 bg-card/55 px-6 py-10 sm:p-10">
-        <Reveal as="div" duration={0.5}>
-          <h2 className="mb-8 text-3xl font-semibold sm:text-4xl">Featured Projects</h2>
-        </Reveal>
+      <Ticker text="Now streaming · Season 01 · Shot on location in Hamburg" />
 
-        {featuredProjects.length > 0 ? (
+      <Container className="py-16 lg:py-20">
+        <div className="flex flex-wrap items-end justify-between gap-6">
+          <h2 className="max-w-[16ch] font-display text-[clamp(2rem,1.4rem+2.4vw,3.5rem)]">
+            This season&rsquo;s episodes
+          </h2>
+          {featured.length > 0 && (
+            <Sticker tone="orange" tilt={3}>
+              {String(featured.length).padStart(2, "0")} of {String(allProjects.length).padStart(2, "0")}
+            </Sticker>
+          )}
+        </div>
+
+        {featured.length > 0 ? (
           <>
-            <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-              {featuredProjects.map((project, index) => (
-                <Reveal key={project.id} delay={index * 0.08} className="h-full">
-                  <ProjectCard project={project} />
-                </Reveal>
+            <div className="mt-11 flex flex-col gap-10 lg:gap-12">
+              {featured.map((project, index) => (
+                <EpisodeCard key={project.id} project={project} index={index} />
               ))}
             </div>
 
-            <Link
-              href="/projects"
-              className="mt-8 inline-flex items-center gap-2 rounded-full border border-border px-5 py-2 text-sm transition-colors hover:bg-muted/50"
-            >
-              See all projects
-              <ArrowRight className="h-4 w-4" />
-            </Link>
+            <div className="mt-12">
+              <Button asChild variant="chunky" size="xl">
+                <Link href="/projects">
+                  See all episodes <ArrowRight className="h-5 w-5" />
+                </Link>
+              </Button>
+            </div>
           </>
         ) : (
-          <p className="text-sm text-muted-foreground">Projects are being updated. Check back shortly.</p>
+          <p className="mt-8 font-mono text-sm text-muted-foreground">
+            {"// episodes are in post-production. check back shortly."}
+          </p>
         )}
+      </Container>
+
+      <section className="blk-teal halftone border-y-[3px] border-foreground">
+        <Container className="py-14 lg:py-16">
+          <div className="flex flex-wrap items-center gap-5">
+            <Sticker tilt={-4}>Recap</Sticker>
+            <h2 className="font-display text-[clamp(1.8rem,1.3rem+1.8vw,2.75rem)]">
+              Previously on&hellip;
+            </h2>
+          </div>
+
+          <div className="mt-10 grid gap-7 md:grid-cols-3">
+            {EXPERIENCE.map((item) => (
+              <article
+                key={item.role}
+                className={`hard-navy p-6 text-navy ${item.tone}`}
+              >
+                <p className="font-mono text-[11px] font-bold tracking-[0.18em]">{item.period}</p>
+                <h3 className="mt-3 font-display text-xl leading-tight">{item.role}</h3>
+                <p className="mt-2 text-[13px] font-extrabold">{item.org}</p>
+                <p className="mt-3 text-sm leading-relaxed">{item.description}</p>
+              </article>
+            ))}
+          </div>
+        </Container>
       </section>
-    </div>
+    </>
   );
 }

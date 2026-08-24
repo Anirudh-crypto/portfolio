@@ -3,7 +3,7 @@ import type { Metadata, Viewport } from "next";
 import { ThemeProvider } from "@/components/theme-provider";
 import { Navbar } from "@/components/shared/navbar";
 import { Footer } from "@/components/shared/footer";
-import { Playfair_Display, Manrope } from "next/font/google";
+import { Alfa_Slab_One, Manrope, JetBrains_Mono } from "next/font/google";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import { Analytics } from "@vercel/analytics/next";
 import { siteConfig, siteUrl } from "@/lib/site";
@@ -14,9 +14,17 @@ const manrope = Manrope({
   display: "swap",
 });
 
-const playfair = Playfair_Display({
+/* Heavy slab for the title-card headings. Ships in a single weight. */
+const alfaSlab = Alfa_Slab_One({
   subsets: ["latin"],
+  weight: "400",
   variable: "--font-display",
+  display: "swap",
+});
+
+const jetbrainsMono = JetBrains_Mono({
+  subsets: ["latin"],
+  variable: "--font-mono",
   display: "swap",
 });
 
@@ -78,26 +86,26 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body
         suppressHydrationWarning
-        className={`${manrope.variable} ${playfair.variable} bg-background text-foreground antialiased transition-colors duration-300`}
+        className={`${manrope.variable} ${alfaSlab.variable} ${jetbrainsMono.variable} bg-background text-foreground antialiased`}
       >
         <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
           <a
             href="#main-content"
-            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:rounded-lg focus:border focus:border-border focus:bg-card focus:px-4 focus:py-2"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-[60] focus:border-[3px] focus:border-foreground focus:bg-mustard focus:px-4 focus:py-2 focus:font-bold focus:text-navy"
           >
             Skip to content
           </a>
-          <div className="site-bg" aria-hidden />
           <Navbar />
           {/*
             The single `<main>` for the whole site. Pages render plain `<div>`
             wrappers — nesting another `<main>` here would be invalid HTML and
             gives screen readers two competing main landmarks.
+
+            No max-width or padding here: the design runs full-bleed colour
+            blocks edge to edge, so each page constrains its own content with
+            <Container> instead.
           */}
-          <main
-            id="main-content"
-            className="mx-auto min-h-[calc(100vh-10rem)] w-full max-w-7xl px-5 pb-10 pt-8 sm:px-8 lg:px-12"
-          >
+          <main id="main-content" className="min-h-[calc(100vh-16rem)]">
             {children}
           </main>
           <Footer />

@@ -1,121 +1,178 @@
 import type { Metadata } from "next";
-import { Download } from "lucide-react";
-import { Reveal } from "@/components/animations/reveal";
+import { Download, Zap } from "lucide-react";
+import { Container } from "@/components/shared/container";
+import { Dots } from "@/components/shared/dots";
+import { Sticker } from "@/components/shared/sticker";
+import { Button } from "@/components/ui/button";
 
 export const metadata: Metadata = {
-  title: "About",
+  title: "The Story",
   description:
     "Anirudh Prahlad Joshi — software engineer with product development experience at Bosch and active work in machine learning, computer vision, and NLP.",
   alternates: { canonical: "/about" },
 };
 
-const experiences = [
+const EXPERIENCE = [
   {
-    title: "Student Assistant",
-    company: "Institute of Production Management and Technology (TUHH)",
-    period: "Feb 2025 - Present",
+    code: "S02",
+    period: "Feb 2025 — present",
+    role: "Student Assistant",
+    org: "Institute of Production Management and Technology, TUHH",
     description:
-      "Working on industrial analytics and ML-driven automation, including a Vue.js frontend for real-time work-order tracking with Python and MongoDB services.",
+      "Industrial analytics and ML-driven automation. Built a Vue.js front end for real-time work-order tracking, backed by Python and MongoDB services.",
+    tone: "bg-mustard",
   },
   {
-    title: "Associate Software Engineer",
-    company: "Bosch Global Software Technologies",
-    period: "Jul 2023 - Sep 2024",
+    code: "S01E12",
+    period: "Jul 2023 — Sep 2024",
+    role: "Associate Software Engineer",
+    org: "Bosch Global Software Technologies",
     description:
-      "Improved navigation systems by optimizing search behavior and data quality in C++ and Qt-based desktop platforms.",
+      "Improved navigation systems by optimising search behaviour and data quality across C++ and Qt desktop platforms.",
+    tone: "bg-orange",
   },
   {
-    title: "Project Trainee (Intern)",
-    company: "Bosch Global Software Technologies",
-    period: "Jan 2023 - May 2023",
+    code: "S01E04",
+    period: "Jan 2023 — May 2023",
+    role: "Project Trainee",
+    org: "Bosch Global Software Technologies",
     description:
       "Refactored map-search logic to reduce latency and improve maintainability in infotainment software.",
+    tone: "bg-teal",
   },
 ];
 
-const skills = {
-  Languages: ["Python", "C++", "JavaScript", "TypeScript"],
-  Frameworks: ["React", "Angular", "Next.js", "Vue.js"],
-  "Data and ML": ["Pandas", "NumPy", "Scikit-learn", "PyTorch", "PySpark"],
-  Tools: ["Git", "Docker", "Linux", "Postman", "Power BI"],
-  Focus: ["Deep Learning", "Computer Vision", "LLMs", "NLP"],
-};
+const SKILLS = [
+  { category: "Languages", items: ["Python", "C++", "TypeScript", "JavaScript"], depth: 4, tone: "bg-mustard" },
+  { category: "ML & Data", items: ["PyTorch", "Scikit-learn", "Pandas", "NumPy", "PySpark"], depth: 4, tone: "bg-orange" },
+  { category: "Frameworks", items: ["React", "Next.js", "Vue.js", "Angular"], depth: 3, tone: "bg-cream" },
+  { category: "Infrastructure", items: ["Docker", "Linux", "Git", "GCP"], depth: 3, tone: "bg-cream" },
+  { category: "Focus", items: ["Deep Learning", "Computer Vision", "NLP", "LLMs"], depth: 4, tone: "bg-mustard" },
+];
 
 export default function AboutPage() {
   return (
-    <div className="space-y-8 pb-10">
-      <section className="rounded-[2rem] border border-border/70 bg-card/65 px-6 py-12 sm:p-12">
-        <h1 className="section-title text-center">About</h1>
-        <p className="mx-auto mt-4 max-w-3xl text-center text-muted-foreground">
-          Software engineer with 1.5 years of professional product development experience and
-          active work in machine learning and AI systems.
-        </p>
-        <div className="mt-8 flex justify-center">
-          {/*
-            A plain download link rather than a click handler that builds an
-            anchor: it works without JavaScript and is a real, right-clickable
-            link for anyone who wants to open the PDF in a tab instead.
-          */}
-          <a
-            href="/Resume.pdf"
-            download="Anirudh_Prahlad_Joshi_Resume.pdf"
-            className="inline-flex h-10 items-center rounded-full bg-[hsl(var(--accent))] px-6 text-sm font-medium text-[hsl(var(--accent-foreground))] transition-opacity hover:opacity-90"
-          >
-            <Download className="mr-2 h-4 w-4" />
-            Download Resume
-          </a>
-        </div>
+    <>
+      <section className="blk-ink halftone border-b-[3px] border-foreground">
+        <Container className="grid items-end gap-10 py-14 lg:grid-cols-[1fr_330px] lg:py-16">
+          <div>
+            <div className="flex items-center gap-4">
+              <Dots size={17} />
+              <span className="font-mono text-[11px] uppercase tracking-[0.24em] opacity-85 sm:text-xs">
+                The Story
+              </span>
+            </div>
+            <h1 className="mt-6 font-display text-[clamp(2.4rem,1.6rem+3.4vw,4.75rem)]">
+              Previously on
+              <br />
+              Anirudh
+            </h1>
+          </div>
+          <p className="text-lg leading-relaxed opacity-90">
+            Three years, two very different codebases, and one fairly dramatic change of subject.
+          </p>
+        </Container>
       </section>
 
-      <section className="surface-card p-6 sm:p-8">
-        <h2 className="mb-6 text-3xl font-semibold">Experience</h2>
-        <div className="space-y-4">
-          {experiences.map((item, index) => (
-            <Reveal
-              as="article"
-              key={item.title}
-              delay={index * 0.08}
-              duration={0.4}
-              offset={16}
-              className="rounded-xl border border-border bg-background/65 p-5"
-            >
-              <h3 className="text-xl font-semibold">{item.title}</h3>
-              <p className="mt-1 text-sm text-muted-foreground">
-                {item.company} | {item.period}
-              </p>
-              <p className="mt-3 text-sm text-muted-foreground">{item.description}</p>
-            </Reveal>
+      <Container className="py-14">
+        <div className="flex flex-col gap-6">
+          {EXPERIENCE.map((item) => (
+            <article key={item.code} className="hard grid bg-card sm:grid-cols-[8px_170px_1fr]">
+              <div className={`h-2 sm:h-auto ${item.tone}`} />
+              <div className="px-6 pt-6 sm:py-6 sm:pl-7 sm:pr-0">
+                <span className="inline-block bg-foreground px-2.5 py-1.5 font-mono text-xs font-bold tracking-[0.16em] text-background">
+                  {item.code}
+                </span>
+                <p className="mt-3 font-mono text-[11px] tracking-[0.08em] text-muted-foreground">
+                  {item.period}
+                </p>
+              </div>
+              <div className="p-6 sm:py-6 sm:pl-3 sm:pr-7">
+                <h2 className="font-display text-xl lg:text-2xl">{item.role}</h2>
+                <p className="mt-2 text-sm font-extrabold text-accent">{item.org}</p>
+                <p className="mt-3 max-w-[72ch] leading-relaxed text-muted-foreground">
+                  {item.description}
+                </p>
+              </div>
+            </article>
           ))}
         </div>
-      </section>
+      </Container>
 
-      <section className="surface-card p-6 sm:p-8">
-        <h2 className="mb-6 text-3xl font-semibold">Technical Skills</h2>
-        <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {Object.entries(skills).map(([category, items], index) => (
-            <Reveal
-              as="article"
-              key={category}
-              delay={index * 0.07}
-              duration={0.35}
-              offset={14}
-              className="rounded-xl border border-border bg-background/60 p-4"
-            >
-              <h3 className="mb-3 text-lg font-semibold">{category}</h3>
-              <div className="flex flex-wrap gap-2">
-                {items.map((item) => (
+      <Container className="pb-14">
+        <div className="blk-orange halftone hard-navy relative p-8 sm:p-12">
+          <div className="absolute -top-5 right-8 z-10">
+            <Sticker tone="cream" tilt={6}>
+              <Zap className="h-3.5 w-3.5" /> Plot twist
+            </Sticker>
+          </div>
+          <span className="font-mono text-[13px] font-bold uppercase tracking-[0.22em]">
+            Mid-season · The Pivot
+          </span>
+          <h2 className="mt-5 max-w-[22ch] font-display text-[clamp(1.9rem,1.3rem+2.2vw,3.1rem)]">
+            Two seasons of C++. Then a hard left into machine learning.
+          </h2>
+          <p className="mt-6 max-w-[76ch] text-lg leading-relaxed">
+            Shipping navigation software taught me what production actually costs — latency
+            budgets, data quality, and the unglamorous work of making something fast enough to be
+            used. I brought the same instincts to research. The debugging habits transferred; the
+            sleep schedule did not survive.
+          </p>
+        </div>
+      </Container>
+
+      <Container className="pb-16">
+        <div className="flex flex-wrap items-end gap-4">
+          <h2 className="font-display text-[clamp(1.9rem,1.3rem+2.2vw,3.1rem)]">
+            The skills I don&rsquo;t share
+          </h2>
+          <span className="pb-2 font-mono text-[13px] text-muted-foreground">(like food)</span>
+        </div>
+
+        <div className="mt-9 grid gap-5 sm:grid-cols-2 lg:grid-cols-5">
+          {SKILLS.map((group) => (
+            <div key={group.category} className={`hard-navy p-5 text-navy ${group.tone}`}>
+              <h3 className="font-display text-lg leading-tight">{group.category}</h3>
+              <div className="mt-3.5 flex gap-1" aria-hidden>
+                {[0, 1, 2, 3].map((step) => (
                   <span
-                    key={item}
-                    className="rounded-full border border-border px-3 py-1 text-xs text-muted-foreground"
-                  >
-                    {item}
-                  </span>
+                    key={step}
+                    className={`h-2 w-full border-2 border-navy ${step < group.depth ? "bg-navy" : "bg-transparent"}`}
+                  />
                 ))}
               </div>
-            </Reveal>
+              <p className="sr-only">Depth: {group.depth} of 4</p>
+              <ul className="mt-4 flex flex-col gap-2">
+                {group.items.map((item) => (
+                  <li key={item} className="text-[13.5px] font-bold">
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
           ))}
         </div>
+      </Container>
+
+      <section className="blk-mustard halftone border-y-[3px] border-foreground">
+        <Container className="flex flex-wrap items-center justify-between gap-7 py-11">
+          <div>
+            <h2 className="font-display text-[clamp(1.6rem,1.2rem+1.6vw,2.4rem)]">
+              Want the full script?
+            </h2>
+            <p className="mt-2 text-base opacity-80">Every credit, properly formatted, in PDF.</p>
+          </div>
+          {/*
+            A real download link rather than a click handler that builds an
+            anchor: it works without JavaScript and can be opened in a new tab.
+          */}
+          <Button asChild variant="chunkyCream" size="xl">
+            <a href="/Resume.pdf" download="Anirudh_Prahlad_Joshi_Resume.pdf">
+              <Download className="h-5 w-5" /> Get the full script
+            </a>
+          </Button>
+        </Container>
       </section>
-    </div>
+    </>
   );
 }

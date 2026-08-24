@@ -1,16 +1,28 @@
-import { ProjectGridSkeleton } from "@/components/project-card-skeleton";
+import { EpisodeListSkeleton } from "@/components/project-card-skeleton";
+import { Container } from "@/components/shared/container";
 
 export default function ProjectsLoading() {
   return (
-    <div className="space-y-8 pb-10">
-      <section className="grain-overlay relative rounded-[2rem] border border-border/70 bg-card/65 px-6 py-12 sm:p-12">
-        <h1 className="section-title text-center">Selected Work</h1>
-        <p className="mx-auto mt-4 max-w-2xl text-center text-muted-foreground">
-          A set of projects focused on production-ready systems, machine learning, and applied research.
-        </p>
+    <>
+      <section className="blk-orange halftone border-b-[3px] border-foreground">
+        <Container className="py-14 lg:py-16">
+          <span className="font-mono text-[11px] uppercase tracking-[0.24em] sm:text-xs">
+            The Work
+          </span>
+          <h1 className="mt-5 font-display text-[clamp(2.4rem,1.6rem+3.4vw,4.6rem)]">
+            Every episode,
+            <br />
+            in order.
+          </h1>
+        </Container>
       </section>
 
-      <ProjectGridSkeleton />
-    </div>
+      <Container className="py-12 lg:py-14">
+        <p className="mb-9 font-mono text-sm text-muted-foreground">
+          {"// cueing up the episodes…"}
+        </p>
+        <EpisodeListSkeleton />
+      </Container>
+    </>
   );
 }

@@ -1,16 +1,11 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { ProjectCard } from "@/components/project-card";
-import { Reveal } from "@/components/animations/reveal";
+import { EpisodeCard } from "@/components/episode-card";
 import { cn } from "@/lib/utils";
 import type { Project } from "@/lib/projects";
 
 const ALL = "All";
-
-type ProjectExplorerProps = {
-  projects: Project[];
-};
 
 /**
  * Client-side filtering over a server-rendered project list.
@@ -18,7 +13,7 @@ type ProjectExplorerProps = {
  * The full list ships in the initial HTML, so crawlers and no-JS visitors still
  * see every project; the filter only narrows what is already there.
  */
-export const ProjectExplorer = ({ projects }: ProjectExplorerProps) => {
+export const ProjectExplorer = ({ projects }: { projects: Project[] }) => {
   const [activeTag, setActiveTag] = useState<string>(ALL);
 
   const tags = useMemo(() => {
@@ -40,16 +35,18 @@ export const ProjectExplorer = ({ projects }: ProjectExplorerProps) => {
 
   const visibleProjects = useMemo(
     () =>
-      activeTag === ALL
-        ? projects
-        : projects.filter((project) => project.tech.includes(activeTag)),
+      activeTag === ALL ? projects : projects.filter((project) => project.tech.includes(activeTag)),
     [projects, activeTag]
   );
 
   return (
-    <div className="space-y-6">
+    <div>
       {tags.length > 1 && (
-        <div className="flex flex-wrap gap-2" role="group" aria-label="Filter projects by technology">
+        <div
+          role="group"
+          aria-label="Filter projects by technology"
+          className="flex flex-wrap gap-2.5 pb-9"
+        >
           {[ALL, ...tags].map((tag) => {
             const isActive = tag === activeTag;
             return (
@@ -59,10 +56,10 @@ export const ProjectExplorer = ({ projects }: ProjectExplorerProps) => {
                 onClick={() => setActiveTag(tag)}
                 aria-pressed={isActive}
                 className={cn(
-                  "rounded-full border px-4 py-1.5 text-sm transition-colors",
+                  "flex h-11 items-center border-2 border-foreground px-4 font-mono text-xs font-bold tracking-[0.07em] transition-colors",
                   isActive
-                    ? "border-transparent bg-[hsl(var(--accent))] text-[hsl(var(--accent-foreground))]"
-                    : "border-border text-muted-foreground hover:bg-muted/50 hover:text-foreground"
+                    ? "bg-mustard text-navy shadow-[3px_3px_0_hsl(var(--foreground))]"
+                    : "bg-background hover:bg-muted"
                 )}
               >
                 {tag}
@@ -73,14 +70,17 @@ export const ProjectExplorer = ({ projects }: ProjectExplorerProps) => {
       )}
 
       <p className="sr-only" aria-live="polite">
-        {visibleProjects.length} {visibleProjects.length === 1 ? "project" : "projects"} shown
+        {visibleProjects.length} {visibleProjects.length === 1 ? "episode" : "episodes"} shown
       </p>
 
-      <div className="grid gap-5 md:grid-cols-2 xl:grid-cols-3">
-        {visibleProjects.map((project, index) => (
-          <Reveal key={project.id} delay={Math.min(index, 5) * 0.06} className="h-full">
-            <ProjectCard project={project} />
-          </Reveal>
+      <div className="flex flex-col gap-10 lg:gap-12">
+        {visibleProjects.map((project) => (
+          <EpisodeCard
+            key={project.id}
+            project={project}
+            /* Numbering follows the full list, so filtering does not renumber. */
+            index={projects.indexOf(project)}
+          />
         ))}
       </div>
     </div>

@@ -67,7 +67,7 @@ export const ContactForm = () => {
             <FormItem>
               <FormLabel>Name</FormLabel>
               <FormControl>
-                <Input placeholder="Your name" autoComplete="name" className="rounded-xl" {...field} />
+                <Input placeholder="Your name" autoComplete="name" {...field} />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -85,7 +85,7 @@ export const ContactForm = () => {
                   type="email"
                   placeholder="you@example.com"
                   autoComplete="email"
-                  className="rounded-xl"
+                 
                   {...field}
                 />
               </FormControl>
@@ -103,7 +103,7 @@ export const ContactForm = () => {
               <FormControl>
                 <Textarea
                   placeholder="What would you like to talk about?"
-                  className="min-h-36 rounded-xl"
+                  className="min-h-36"
                   {...field}
                 />
               </FormControl>
@@ -118,19 +118,22 @@ export const ContactForm = () => {
           <input id="website" tabIndex={-1} autoComplete="off" {...form.register("website")} />
         </div>
 
-        <div className="flex flex-wrap items-center gap-4">
-          <Button
-            type="submit"
-            disabled={form.formState.isSubmitting}
-            className="rounded-full px-6"
-          >
-            <Send className="mr-2 h-4 w-4" />
-            {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+        <div className="flex flex-wrap items-center gap-5 pt-2">
+          <Button type="submit" variant="chunky" size="xl" disabled={form.formState.isSubmitting}>
+            <Send className="h-4 w-4" />
+            {form.formState.isSubmitting ? "Sending..." : "Send it"}
           </Button>
 
-          <p aria-live="polite" className="text-sm">
+          <p aria-live="polite" className="font-mono text-[13px]">
+            {status.kind === "idle" && (
+              <span className="text-muted-foreground">
+                {"// I reply faster than a season gap."}
+              </span>
+            )}
             {status.kind === "sent" && (
-              <span className="text-muted-foreground">Thanks — I&apos;ll get back to you soon.</span>
+              <span className="font-bold text-accent">
+                {"// sent. you’ll hear back before the next season."}
+              </span>
             )}
             {status.kind === "error" && <span className="text-destructive">{status.message}</span>}
           </p>

@@ -3,7 +3,6 @@
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { Sun, Moon } from "lucide-react";
-import { Button } from "@/components/ui/button";
 
 export function ThemeToggle() {
   const { theme, systemTheme, setTheme } = useTheme();
@@ -14,26 +13,20 @@ export function ThemeToggle() {
   // The resolved theme is unknown until hydration. Render a same-sized inert
   // placeholder rather than nothing, so the navbar does not reflow.
   if (!mounted) {
-    return (
-      <div
-        aria-hidden
-        className="size-9 rounded-lg border border-border"
-      />
-    );
+    return <div aria-hidden className="ml-1 h-11 w-11 border-[3px] border-foreground" />;
   }
 
   const currentTheme = theme === "system" ? systemTheme : theme;
   const nextTheme = currentTheme === "light" ? "dark" : "light";
 
   return (
-    <Button
-      variant="ghost"
-      size="icon"
+    <button
+      type="button"
       onClick={() => setTheme(nextTheme)}
-      className="rounded-lg border border-border text-muted-foreground hover:text-foreground"
+      className="ml-1 flex h-11 w-11 items-center justify-center border-[3px] border-foreground text-foreground transition-colors hover:bg-mustard hover:text-navy"
       aria-label={`Switch to ${nextTheme} theme`}
     >
       {currentTheme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
-    </Button>
+    </button>
   );
 }

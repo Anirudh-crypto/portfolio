@@ -1,3 +1,6 @@
+/** A `Label: Value` pair for the case-study metrics strip. */
+export type Metric = { label: string; value: string };
+
 export type Project = {
   id: string;
   slug: string;
@@ -10,6 +13,21 @@ export type Project = {
   imageUrl?: string;
   order: number;
   createdAtMs: number;
+
+  /*
+   * Episode framing. All optional — a project with none of these still renders
+   * correctly, falling back to `title` and the `details` bullets.
+   */
+  episodeTitle?: string;
+  guestStarring?: string;
+  runtime?: string;
+
+  /* Case-study beats. Absent beats are simply not rendered. */
+  coldOpen?: string;
+  plot?: string;
+  twist?: string;
+  finale?: string;
+  metrics: Metric[];
 };
 
 /**
@@ -95,11 +113,56 @@ export const normalizeProject = (id: string, data: RawProject): Project | null =
     // Unordered projects sort after ordered ones rather than jumping to the top.
     order: toNumber(data.order, Number.MAX_SAFE_INTEGER),
     createdAtMs: toMillis(data.createdAt),
+
+    episodeTitle: toOptionalString(data.episodeTitle),
+    guestStarring: toOptionalString(data.guestStarring),
+    runtime: toOptionalString(data.runtime),
+
+    coldOpen: toOptionalString(data.coldOpen),
+    plot: toOptionalString(data.plot),
+    twist: toOptionalString(data.twist),
+    finale: toOptionalString(data.finale),
+    metrics: toMetrics(data.metrics),
   };
 };
+
+/**
+ * Metrics are authored as `Label: Value` lines in the admin form and stored as
+ * a string array. Lines without a colon are kept as a value with no label
+ * rather than being dropped.
+ */
+const toMetrics = (value: unknown): Metric[] =>
+  toStringArray(value)
+    .map((line) => {
+      const separator = line.indexOf(":");
+
+      if (separator === -1) {
+        return { label: "", value: line };
+      }
+
+      return {
+        label: line.slice(0, separator).trim(),
+        value: line.slice(separator + 1).trim(),
+      };
+    })
+    .filter((metric) => metric.value.length > 0);
 
 /** Explicit `order` ascending, then newest first. */
 export const sortProjects = (projects: Project[]) =>
   [...projects].sort(
     (left, right) => left.order - right.order || right.createdAtMs - left.createdAtMs
   );
+
+/**
+ * Episode code from a project's position in the sorted list. Derived rather
+ * than stored, so reordering in the admin panel renumbers automatically.
+ */
+export const episodeCode = (index: number) =>
+  `S01E${String(index + 1).padStart(2, "0")}`;
+
+/** The episode name when one is set, otherwise the project's real title. */
+export const headlineOf = (project: Project) => project.episodeTitle || project.title;
+
+/** True when the project has enough written for a case-study page. */
+export const hasBeats = (project: Project) =>
+  Boolean(project.coldOpen || project.plot || project.twist || project.finale);

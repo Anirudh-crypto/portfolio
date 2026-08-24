@@ -19,11 +19,21 @@ const buttonVariants = cva(
         ghost:
           "hover:bg-accent hover:text-accent-foreground dark:hover:bg-accent/50",
         link: "text-primary underline-offset-4 hover:underline",
+        /*
+          Title-card buttons: fixed navy outline and hard offset shadow, so they
+          read the same on any block colour in either theme. The press moves the
+          button into its own shadow rather than fading it.
+        */
+        chunky:
+          "rounded-none border-[3px] border-navy bg-orange text-navy shadow-[5px_5px_0_hsl(var(--navy))] transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0_hsl(var(--navy))] active:translate-x-[5px] active:translate-y-[5px] active:shadow-none",
+        chunkyCream:
+          "rounded-none border-[3px] border-navy bg-cream text-navy shadow-[5px_5px_0_hsl(var(--navy))] transition-transform hover:translate-x-[2px] hover:translate-y-[2px] hover:shadow-[3px_3px_0_hsl(var(--navy))] active:translate-x-[5px] active:translate-y-[5px] active:shadow-none",
       },
       size: {
         default: "h-9 px-4 py-2 has-[>svg]:px-3",
         sm: "h-8 rounded-md gap-1.5 px-3 has-[>svg]:px-2.5",
         lg: "h-10 rounded-md px-6 has-[>svg]:px-4",
+        xl: "h-14 px-7 text-base font-extrabold",
         icon: "size-9",
         "icon-sm": "size-8",
         "icon-lg": "size-10",
