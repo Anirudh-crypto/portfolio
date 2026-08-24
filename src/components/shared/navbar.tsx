@@ -49,9 +49,12 @@ export const Navbar = () => {
           <ThemeToggle />
 
           <button
+            type="button"
             onClick={() => setIsOpen(!isOpen)}
             className="md:hidden rounded-lg border border-border p-2 text-muted-foreground transition hover:text-foreground"
-            aria-label="Toggle menu"
+            aria-label={isOpen ? "Close menu" : "Open menu"}
+            aria-expanded={isOpen}
+            aria-controls="mobile-menu"
           >
             {isOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
           </button>
@@ -61,6 +64,7 @@ export const Navbar = () => {
       <AnimatePresence>
         {isOpen && (
           <motion.div
+            id="mobile-menu"
             initial={{ opacity: 0, y: -15 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -15 }}

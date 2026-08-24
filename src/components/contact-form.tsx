@@ -1,10 +1,141 @@
-export const ContactForm = () => (
-  <section id="contact" className="mx-auto max-w-4xl animate-fadeInUp px-6 py-10 text-center">
-    <a
-      href="mailto:ani.josh01@gmail.com"
-      className="inline-block rounded-full border border-border bg-card px-6 py-3 font-medium transition-colors hover:bg-muted/40"
-    >
-      Say Hi
-    </a>
-  </section>
-);
+"use client";
+
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+import { contactSchema, type ContactInput } from "@/lib/contact-schema";
+
+type Status = { kind: "idle" } | { kind: "sent" } | { kind: "error"; message: string };
+
+export const ContactForm = () => {
+  const [status, setStatus] = useState<Status>({ kind: "idle" });
+
+  const form = useForm<ContactInput>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: { name: "", email: "", message: "", website: "" },
+  });
+
+  const onSubmit = async (values: ContactInput) => {
+    setStatus({ kind: "idle" });
+
+    try {
+      const response = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
+
+      const payload = (await response.json().catch(() => null)) as { error?: string } | null;
+
+      if (!response.ok) {
+        setStatus({
+          kind: "error",
+          message: payload?.error ?? "Something went wrong. Please email me directly.",
+        });
+        return;
+      }
+
+      form.reset();
+      setStatus({ kind: "sent" });
+    } catch {
+      setStatus({
+        kind: "error",
+        message: "Could not reach the server. Please email me directly.",
+      });
+    }
+  };
+
+  return (
+    <Form {...form}>
+      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4" noValidate>
+        <FormField
+          control={form.control}
+          name="name"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Name</FormLabel>
+              <FormControl>
+                <Input placeholder="Your name" autoComplete="name" className="rounded-xl" {...field} />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="email"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Email</FormLabel>
+              <FormControl>
+                <Input
+                  type="email"
+                  placeholder="you@example.com"
+                  autoComplete="email"
+                  className="rounded-xl"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        <FormField
+          control={form.control}
+          name="message"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Message</FormLabel>
+              <FormControl>
+                <Textarea
+                  placeholder="What would you like to talk about?"
+                  className="min-h-36 rounded-xl"
+                  {...field}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+
+        {/* Honeypot: hidden from people, tempting to bots. */}
+        <div aria-hidden className="hidden">
+          <label htmlFor="website">Website</label>
+          <input id="website" tabIndex={-1} autoComplete="off" {...form.register("website")} />
+        </div>
+
+        <div className="flex flex-wrap items-center gap-4">
+          <Button
+            type="submit"
+            disabled={form.formState.isSubmitting}
+            className="rounded-full px-6"
+          >
+            <Send className="mr-2 h-4 w-4" />
+            {form.formState.isSubmitting ? "Sending..." : "Send Message"}
+          </Button>
+
+          <p aria-live="polite" className="text-sm">
+            {status.kind === "sent" && (
+              <span className="text-muted-foreground">Thanks — I&apos;ll get back to you soon.</span>
+            )}
+            {status.kind === "error" && <span className="text-destructive">{status.message}</span>}
+          </p>
+        </div>
+      </form>
+    </Form>
+  );
+};

@@ -13,7 +13,15 @@ export function AboutSection() {
         transition={{ duration: 0.5 }}
         className="relative mx-auto h-44 w-44 overflow-hidden rounded-full border border-border shadow-sm"
       >
-        <Image src="/images/pic.jpg" alt="Anirudh portrait" fill className="object-cover" />
+        {/* Rendered at 176px square; `sizes` stops Next serving a full-width source. */}
+        <Image
+          src="/images/pic.jpg"
+          alt="Portrait of Anirudh Prahlad Joshi"
+          fill
+          sizes="176px"
+          priority
+          className="object-cover"
+        />
       </motion.div>
 
       <motion.div

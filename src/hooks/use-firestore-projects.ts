@@ -3,69 +3,20 @@
 import { useEffect, useState } from "react";
 import type { FirestoreError } from "firebase/firestore";
 import { collection, onSnapshot } from "firebase/firestore";
-import { db } from "@/firebase/config";
-import type { Project } from "@/lib/projects";
-
-type FirestoreProjectDocument = Omit<Project, "id"> & {
-  createdAt?: unknown;
-};
-
-const toTrimmedString = (value: unknown) => (typeof value === "string" ? value.trim() : "");
-
-const toStringArray = (value: unknown) =>
-  Array.isArray(value)
-    ? value
-        .map((item) => toTrimmedString(item))
-        .filter((item) => item.length > 0)
-    : [];
-
-const getCreatedAtTime = (value: unknown) => {
-  if (value instanceof Date) {
-    return value.getTime();
-  }
-
-  if (typeof value === "number") {
-    return value;
-  }
-
-  if (typeof value === "string") {
-    const parsedValue = Date.parse(value);
-    return Number.isNaN(parsedValue) ? 0 : parsedValue;
-  }
-
-  if (
-    typeof value === "object" &&
-    value !== null &&
-    "toMillis" in value &&
-    typeof value.toMillis === "function"
-  ) {
-    return value.toMillis();
-  }
-
-  return 0;
-};
-
-const normalizeProject = (id: string, data: Omit<FirestoreProjectDocument, "createdAt">): Project | null => {
-  const title = toTrimmedString(data.title);
-
-  if (!title) {
-    return null;
-  }
-
-  return {
-    id,
-    title,
-    description: toTrimmedString(data.description),
-    details: toStringArray(data.details),
-    tech: toStringArray(data.tech),
-    link: toTrimmedString(data.link) || undefined,
-  };
-};
+import { getDb } from "@/firebase/config";
+import { normalizeProject, sortProjects, type Project, type RawProject } from "@/lib/projects";
 
 type UseFirestoreProjectsOptions = {
   enabled?: boolean;
 };
 
+/**
+ * Live project list for the admin panel.
+ *
+ * Public pages must NOT use this — they render server-side via
+ * `getProjects()` in `lib/projects-server.ts`, so visitors don't each open a
+ * billed Firestore listener and crawlers see real content.
+ */
 export const useFirestoreProjects = ({ enabled = true }: UseFirestoreProjectsOptions = {}) => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [isLoading, setIsLoading] = useState(enabled);
@@ -82,15 +33,13 @@ export const useFirestoreProjects = ({ enabled = true }: UseFirestoreProjectsOpt
     setIsLoading(true);
 
     const unsubscribe = onSnapshot(
-      collection(db, "projects"),
+      collection(getDb(), "projects"),
       (snapshot) => {
         const nextProjects = snapshot.docs
-          .map((item) => ({ id: item.id, ...(item.data() as FirestoreProjectDocument) }))
-          .sort((left, right) => getCreatedAtTime(right.createdAt) - getCreatedAtTime(left.createdAt))
-          .map(({ id, ...project }) => normalizeProject(id, project))
+          .map((document) => normalizeProject(document.id, document.data() as RawProject))
           .filter((project): project is Project => project !== null);
 
-        setProjects(nextProjects);
+        setProjects(sortProjects(nextProjects));
         setError(null);
         setIsLoading(false);
       },
