@@ -16,12 +16,28 @@ service cloud.firestore {
         && request.auth.token.email == 'ani.josh01@gmail.com';
     }
 
+    /** Optional string field: absent is fine, present must be a capped string. */
+    function optionalText(data, field, maxSize) {
+      return !(field in data)
+        || (data[field] is string && data[field].size() <= maxSize);
+    }
+
     function isValidProject(data) {
       return data.title is string
         && data.title.size() > 0 && data.title.size() <= 200
         && data.description is string && data.description.size() <= 2000
         && data.details is list && data.details.size() <= 20
-        && data.tech is list && data.tech.size() <= 30;
+        && data.tech is list && data.tech.size() <= 30
+        // Episode framing.
+        && optionalText(data, 'episodeTitle', 200)
+        && optionalText(data, 'guestStarring', 100)
+        && optionalText(data, 'runtime', 100)
+        // Case-study beats.
+        && optionalText(data, 'coldOpen', 5000)
+        && optionalText(data, 'plot', 5000)
+        && optionalText(data, 'twist', 5000)
+        && optionalText(data, 'finale', 5000)
+        && (!('metrics' in data) || (data.metrics is list && data.metrics.size() <= 10));
     }
 
     // Projects are public content: anyone may read, only the owner may write.

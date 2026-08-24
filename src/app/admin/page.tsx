@@ -1,8 +1,12 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState, type ReactNode } from "react";
 import { getFirebaseAuth, getDb, googleProvider } from "@/firebase/config";
-import { ADMIN_EMAIL } from "@/firebase/constants";
+import {
+  ADMIN_EMAIL,
+  isFirebaseConfigured,
+  missingFirebaseEnvVars,
+} from "@/firebase/constants";
 import { signInWithPopup, onAuthStateChanged, signOut } from "firebase/auth";
 import type { User } from "firebase/auth";
 import { collection, addDoc, deleteDoc, doc, updateDoc } from "firebase/firestore";
@@ -14,6 +18,7 @@ import {
 import { useFirestoreProjects } from "@/hooks/use-firestore-projects";
 import type { Project } from "@/lib/projects";
 import { seedProjects } from "@/lib/seed-projects";
+import { Container } from "@/components/shared/container";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -83,6 +88,27 @@ const createProjectFormValues = (project: Project): ProjectFormValues => ({
   metrics: project.metrics.map((metric) => `${metric.label}: ${metric.value}`).join("\n"),
 });
 
+/** Centred wrapper for the gate screens (unconfigured, signed out, not owner). */
+const Shell = ({ children }: { children: ReactNode }) => (
+  <Container className="flex min-h-[70vh] flex-col justify-center py-12">{children}</Container>
+);
+
+/**
+ * The seed fields that "Backfill episode copy" can fill in.
+ *
+ * Backfill only ever writes a field that is currently empty, so re-running it
+ * after editing is a no-op on anything already written.
+ */
+const BACKFILL_KEYS = [
+  "episodeTitle",
+  "guestStarring",
+  "runtime",
+  "coldOpen",
+  "plot",
+  "twist",
+  "finale",
+] as const;
+
 const describeError = (error: unknown, fallback: string) => {
   if (error && typeof error === "object" && "code" in error) {
     const code = String((error as { code: unknown }).code);
@@ -116,6 +142,41 @@ export default function AdminPage() {
   const [pendingDelete, setPendingDelete] = useState<Project | null>(null);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isSeeding, setIsSeeding] = useState(false);
+  const [isBackfilling, setIsBackfilling] = useState(false);
+
+  /**
+   * Live projects paired with the seed entry of the same title, keeping only
+   * those where the seed has copy the document is missing.
+   */
+  const backfillCandidates = useMemo(() => {
+    const seedByTitle = new Map(
+      seedProjects.map((seed) => [seed.title.trim().toLowerCase(), seed])
+    );
+
+    return projects.flatMap((project) => {
+      const seed = seedByTitle.get(project.title.trim().toLowerCase());
+
+      if (!seed) return [];
+
+      const patch: Record<string, string | string[]> = {};
+
+      for (const key of BACKFILL_KEYS) {
+        const seedValue = seed[key];
+
+        // Only fill a field the document is actually missing.
+        if (seedValue && !project[key]) {
+          patch[key] = seedValue;
+        }
+      }
+
+      // Metrics is a list, so "empty" means zero entries rather than a blank string.
+      if (project.metrics.length === 0 && seed.metrics?.length) {
+        patch.metrics = seed.metrics;
+      }
+
+      return Object.keys(patch).length > 0 ? [{ id: project.id, patch }] : [];
+    });
+  }, [projects]);
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(getFirebaseAuth(), (currentUser) => {
@@ -219,6 +280,29 @@ export default function AdminPage() {
     }
   };
 
+  /**
+   * Fills in episode copy the seed file has and a document lacks.
+   *
+   * Only ever writes fields that are currently empty, so running it after
+   * hand-editing cannot clobber the edit.
+   */
+  const handleBackfill = async () => {
+    setIsBackfilling(true);
+    setActionError(null);
+
+    try {
+      for (const { id, patch } of backfillCandidates) {
+        await updateDoc(doc(getDb(), "projects", id), { ...patch, updatedAt: new Date() });
+      }
+
+      await revalidatePublicPages();
+    } catch (backfillError) {
+      setActionError(describeError(backfillError, "Could not backfill the episode copy."));
+    } finally {
+      setIsBackfilling(false);
+    }
+  };
+
   const handleCancelEditing = () => {
     setEditingProjectId(null);
     setEditingProject(emptyProjectForm);
@@ -272,28 +356,61 @@ export default function AdminPage() {
     }
   };
 
+  /*
+    Firebase is not configured at all. `getFirebaseAuth()` would throw
+    `auth/invalid-api-key` inside the effect below and land in the generic
+    error boundary, which tells you nothing about the actual cause.
+  */
+  if (!isFirebaseConfigured) {
+    return (
+      <Shell>
+        <div className="hard mx-auto w-full max-w-lg bg-card p-8">
+          <h1 className="font-display text-3xl">Firebase isn&rsquo;t configured</h1>
+          <p className="mt-4 text-muted-foreground">
+            The admin panel needs the Firebase web config to sign you in. Copy{" "}
+            <code className="font-mono text-sm">.env.example</code> to{" "}
+            <code className="font-mono text-sm">.env.local</code>, fill in the values from the
+            Firebase console, then restart the dev server.
+          </p>
+          <p className="mt-5 font-mono text-xs uppercase tracking-[0.16em] text-muted-foreground">
+            Missing
+          </p>
+          <ul className="mt-2 flex flex-col gap-1.5">
+            {missingFirebaseEnvVars.map((name) => (
+              <li key={name} className="font-mono text-[13px] text-destructive">
+                {name}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </Shell>
+    );
+  }
+
   if (!isAuthResolved) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <p className="text-sm text-muted-foreground">Checking your session...</p>
-      </div>
+      <Shell>
+        <p className="text-center font-mono text-sm text-muted-foreground">
+          Checking your session&hellip;
+        </p>
+      </Shell>
     );
   }
 
   if (!user) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="surface-card w-full max-w-md p-8 text-center">
-          <h1 className="mb-4 text-3xl font-semibold">Admin Access</h1>
-          <p className="mb-6 text-sm text-muted-foreground">
+      <Shell>
+        <div className="hard mx-auto w-full max-w-md bg-card p-8 text-center">
+          <h1 className="font-display text-3xl">Admin Access</h1>
+          <p className="mb-7 mt-4 text-sm text-muted-foreground">
             Sign in with your Google account to manage projects.
           </p>
-          <Button onClick={handleLogin} className="rounded-full px-6">
+          <Button onClick={handleLogin} variant="chunky" size="xl">
             Login with Google
           </Button>
-          {authError && <p className="mt-4 text-sm text-destructive">{authError}</p>}
+          {authError && <p className="mt-5 text-sm text-destructive">{authError}</p>}
         </div>
-      </div>
+      </Shell>
     );
   }
 
@@ -301,42 +418,47 @@ export default function AdminPage() {
   // this just replaces a panel full of failing buttons with a clear message.
   if (!isOwner) {
     return (
-      <div className="flex min-h-[70vh] items-center justify-center">
-        <div className="surface-card w-full max-w-md p-8 text-center">
-          <h1 className="mb-4 text-3xl font-semibold">Not authorized</h1>
-          <p className="mb-6 text-sm text-muted-foreground">
+      <Shell>
+        <div className="hard mx-auto w-full max-w-md bg-card p-8 text-center">
+          <h1 className="font-display text-3xl">Not authorized</h1>
+          <p className="mb-7 mt-4 text-sm text-muted-foreground">
             {user.email} does not have access to this panel.
           </p>
-          <Button variant="outline" onClick={handleLogout} className="rounded-full px-6">
+          <Button variant="outline" onClick={handleLogout}>
             Sign out
           </Button>
         </div>
-      </div>
+      </Shell>
     );
   }
 
   return (
-    <div className="space-y-6 pb-10">
-      <section className="surface-card p-6 sm:p-8">
-        <div className="flex flex-wrap items-center justify-between gap-3">
+    <Container className="flex flex-col gap-7 py-10">
+      <section className="hard bg-card p-6 sm:p-8">
+        <div className="flex flex-wrap items-center justify-between gap-4">
           <div>
-            <h1 className="text-3xl font-semibold">Admin Panel</h1>
-            <p className="mt-1 text-sm text-muted-foreground">Signed in as {user.email}</p>
+            <h1 className="font-display text-3xl">Admin Panel</h1>
+            <p className="mt-2 font-mono text-xs tracking-[0.08em] text-muted-foreground">
+              Signed in as {user.email}
+            </p>
           </div>
-          <Button variant="outline" onClick={handleLogout} className="rounded-full">
+          <Button variant="outline" onClick={handleLogout}>
             Logout
           </Button>
         </div>
       </section>
 
       {actionError && (
-        <p role="alert" className="rounded-xl border border-destructive/40 bg-destructive/10 p-4 text-sm text-destructive">
+        <p
+          role="alert"
+          className="border-[3px] border-destructive bg-destructive/10 p-4 text-sm font-bold text-destructive"
+        >
           {actionError}
         </p>
       )}
 
-      <section className="surface-card space-y-3 p-6 sm:p-8">
-        <h2 className="text-2xl font-semibold">Add Project</h2>
+      <section className="hard space-y-4 bg-card p-6 sm:p-8">
+        <h2 className="font-display text-2xl">Add Project</h2>
         <ProjectForm
           formId="create-project"
           values={newProject}
@@ -347,26 +469,53 @@ export default function AdminPage() {
         />
       </section>
 
-      <section className="surface-card p-6 sm:p-8">
-        <h2 className="mb-4 text-2xl font-semibold">Existing Projects</h2>
-        <div className="space-y-3">
-          {isLoading && <p className="text-sm text-muted-foreground">Syncing projects from Firestore...</p>}
+      <section className="hard bg-card p-6 sm:p-8">
+        <h2 className="mb-5 font-display text-2xl">Existing Projects</h2>
+        <div className="space-y-4">
+          {isLoading && (
+            <p className="font-mono text-sm text-muted-foreground">
+              Syncing projects from Firestore&hellip;
+            </p>
+          )}
           {error && (
-            <p className="text-sm text-destructive">Unable to read projects from Firestore.</p>
+            <p className="text-sm font-bold text-destructive">
+              Unable to read projects from Firestore.
+            </p>
           )}
           {!isLoading && !error && projects.length === 0 && (
-            <div className="space-y-3">
+            <div className="space-y-4">
               <p className="text-sm text-muted-foreground">
                 No projects yet. Add your first one above, or import the three original portfolio
                 entries to start from.
               </p>
-              <Button
-                variant="outline"
-                onClick={handleSeedProjects}
-                disabled={isSeeding}
-                className="rounded-full"
-              >
+              <Button variant="outline" onClick={handleSeedProjects} disabled={isSeeding}>
                 {isSeeding ? "Importing..." : "Seed starter projects"}
+              </Button>
+            </div>
+          )}
+
+          {/*
+            Backfill exists because the seed action only appears on an empty
+            collection: without it, episode copy added to the seed file after
+            the first seed could never reach existing documents.
+          */}
+          {backfillCandidates.length > 0 && (
+            <div className="border-[3px] border-foreground bg-mustard p-4 text-navy">
+              <p className="text-sm font-bold">
+                {backfillCandidates.length} project
+                {backfillCandidates.length === 1 ? " is" : "s are"} missing episode copy.
+              </p>
+              <p className="mt-1.5 text-sm">
+                Backfilling fills only fields that are currently empty — anything you have already
+                written is left alone.
+              </p>
+              <Button
+                variant="chunkyCream"
+                onClick={handleBackfill}
+                disabled={isBackfilling}
+                className="mt-4 h-11 px-5 text-sm"
+              >
+                {isBackfilling ? "Backfilling..." : "Backfill episode copy"}
               </Button>
             </div>
           )}
@@ -374,7 +523,7 @@ export default function AdminPage() {
           {projects.map((project) => (
             <article
               key={project.id}
-              className="space-y-4 rounded-xl border border-border bg-background/65 p-4"
+              className="space-y-4 border-[3px] border-foreground bg-background p-5"
             >
               {editingProjectId === project.id ? (
                 <ProjectForm
@@ -389,8 +538,13 @@ export default function AdminPage() {
               ) : (
                 <div className="space-y-3">
                   <div className="flex flex-wrap items-start justify-between gap-3">
-                    <div className="space-y-1">
-                      <h3 className="font-semibold">{project.title}</h3>
+                    <div className="space-y-1.5">
+                      <h3 className="font-display text-lg">{project.title}</h3>
+                      {project.episodeTitle && (
+                        <p className="font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
+                          {project.episodeTitle}
+                        </p>
+                      )}
                       <p className="text-sm text-muted-foreground">{project.description}</p>
                     </div>
 
@@ -422,7 +576,7 @@ export default function AdminPage() {
                       {project.tech.map((item) => (
                         <span
                           key={item}
-                          className="rounded-full border border-border/80 bg-background/75 px-3 py-1 text-xs text-muted-foreground"
+                          className="border-2 border-foreground bg-card px-2.5 py-1 font-mono text-[10px] font-bold tracking-[0.07em]"
                         >
                           {item}
                         </span>
@@ -442,9 +596,9 @@ export default function AdminPage() {
           if (!open && !isDeleting) setPendingDelete(null);
         }}
       >
-        <DialogContent className="max-w-md rounded-2xl border-border bg-card">
+        <DialogContent className="max-w-md rounded-none border-[3px] border-foreground bg-card">
           <DialogHeader className="text-left">
-            <DialogTitle>Delete this project?</DialogTitle>
+            <DialogTitle className="font-display text-2xl">Delete this project?</DialogTitle>
             <DialogDescription>
               &ldquo;{pendingDelete?.title}&rdquo; will be permanently removed from Firestore. This
               cannot be undone.
@@ -456,7 +610,6 @@ export default function AdminPage() {
               variant="outline"
               onClick={() => setPendingDelete(null)}
               disabled={isDeleting}
-              className="rounded-full"
             >
               Cancel
             </Button>
@@ -464,13 +617,12 @@ export default function AdminPage() {
               variant="destructive"
               onClick={handleConfirmDelete}
               disabled={isDeleting}
-              className="rounded-full"
             >
               {isDeleting ? "Deleting..." : "Delete project"}
             </Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
-    </div>
+    </Container>
   );
 }

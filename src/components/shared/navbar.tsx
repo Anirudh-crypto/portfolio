@@ -5,7 +5,6 @@ import Link from "next/link";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { Container } from "@/components/shared/container";
 import { Dots } from "@/components/shared/dots";
-import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X } from "lucide-react";
 import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
@@ -65,36 +64,44 @@ export const Navbar = () => {
         </div>
       </Container>
 
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            id="mobile-menu"
-            initial={{ height: 0, opacity: 0 }}
-            animate={{ height: "auto", opacity: 1 }}
-            exit={{ height: 0, opacity: 0 }}
-            transition={{ duration: 0.22, ease: "easeOut" }}
-            className="overflow-hidden border-t-[3px] border-foreground bg-background md:hidden"
-          >
-            <Container className="flex flex-col gap-2 py-4">
-              {links.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "flex h-12 items-center border-[3px] px-4 font-mono text-xs font-bold uppercase tracking-[0.14em]",
-                    isActive(item.href)
-                      ? "border-foreground bg-mustard text-navy"
-                      : "border-foreground text-foreground"
-                  )}
-                >
-                  {item.label}
-                </Link>
-              ))}
-            </Container>
-          </motion.div>
+      {/*
+        CSS-only accordion: the grid row animates from 0fr to 1fr over an
+        overflow-hidden child, which transitions to the content's natural
+        height without JavaScript measuring it. Replaces the one framer-motion
+        usage left in the app — worth ~40 kB off every page, since the navbar
+        sits in the root layout.
+
+        `prefers-reduced-motion` neutralises the transition via globals.css.
+      */}
+      <div
+        id="mobile-menu"
+        // Hidden from assistive tech and tab order while collapsed.
+        inert={!isOpen ? true : undefined}
+        className={cn(
+          "grid overflow-hidden bg-background transition-[grid-template-rows] duration-200 ease-out md:hidden",
+          isOpen ? "grid-rows-[1fr] border-t-[3px] border-foreground" : "grid-rows-[0fr]"
         )}
-      </AnimatePresence>
+      >
+        <div className="overflow-hidden">
+          <Container className="flex flex-col gap-2 py-4">
+            {links.map((item) => (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={() => setIsOpen(false)}
+                className={cn(
+                  "flex h-12 items-center border-[3px] px-4 font-mono text-xs font-bold uppercase tracking-[0.14em]",
+                  isActive(item.href)
+                    ? "border-foreground bg-mustard text-navy"
+                    : "border-foreground text-foreground"
+                )}
+              >
+                {item.label}
+              </Link>
+            ))}
+          </Container>
+        </div>
+      </div>
     </nav>
   );
 };

@@ -43,6 +43,7 @@ data.
 | `NEXT_PUBLIC_FIREBASE_DATABASE_ID` | Defaults to `portfolio-admin` |
 | `NEXT_PUBLIC_ADMIN_EMAIL` | The one Google account allowed into `/admin` |
 | `NEXT_PUBLIC_SITE_URL` | Absolute production URL for canonicals, OG tags, sitemap |
+| `RESEND_API_KEY` | **Server-only secret.** Emails contact submissions to you. Optional — without it the form still archives to Firestore |
 
 `NEXT_PUBLIC_SITE_URL` falls back to the Vercel project URL, then to
 `http://localhost:3000`. Set it explicitly in production so canonical links and
